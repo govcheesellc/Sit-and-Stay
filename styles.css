@@ -1,46 +1,156 @@
+/* Import modern fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
 /* General body styling */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f9f7f3; /* Soft beige background */
+    color: #333;
+    line-height: 1.6;
 }
 
 /* Navigation bar styling */
 nav {
-    background-color: #333;
-    color: white;
-    padding: 10px;
+    background-color: #4a90e2; /* Light blue for a pet-friendly vibe */
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 nav ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    text-align: center;
 }
 
 nav ul li {
     display: inline;
-    margin-right: 10px;
+    margin-right: 20px;
 }
 
 nav ul li a {
     color: white;
     text-decoration: none;
+    font-weight: 400;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #f5a623; /* Orange hover effect for warmth */
 }
 
 /* Main content styling */
 main {
-    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    animation: fadeIn 1s ease-in-out; /* Subtle fade-in animation */
 }
 
-h1, h2 {
-    color: #333;
+h1 {
+    color: #2c3e50; /* Darker blue for headings */
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-top: 30px;
+}
+
+p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+/* Add a subtle pet-themed background pattern */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://www.transparenttextures.com/patterns/paws.png') repeat;
+    opacity: 0.05; /* Very subtle */
+    z-index: -1;
+}
+
+/* Fade-in animation for main content */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Book Now button styling */
+.book-now-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f5a623;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.book-now-btn:hover {
+    background-color: #e09612;
+}
+
+/* Footer styling */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #4a90e2;
+    color: white;
+    margin-top: 40px;
+}
+
+footer p {
+    margin: 0;
+    color: white;
+    font-size: 0.9rem;
 }
 
 /* Responsive design for mobile */
 @media (max-width: 600px) {
     nav ul li {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
+    main {
+        padding: 20px 15px;
     }
 }
