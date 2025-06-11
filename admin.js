@@ -176,9 +176,6 @@ function handleSuccessfulLogin(user) {
     loadAnalyticsData();
     startAnalyticsAutoRefresh();
     
-    // Load business forecasting data
-    loadBusinessForecasting();
-    
     console.log('Admin Dashboard Loaded Successfully');
 }
 
@@ -1587,6 +1584,54 @@ function showDetailedAnalysisModal() {
     document.body.insertAdjacentHTML('beforeend', analysisHTML);
 }
 
+/**
+ * Open Business Intelligence Modal
+ */
+function openBusinessIntelligenceModal() {
+    const modal = document.getElementById('businessIntelligenceModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Load forecasting data when modal opens
+        loadBusinessForecasting();
+        
+        // Add escape key listener
+        document.addEventListener('keydown', handleModalEscape);
+    }
+}
+
+/**
+ * Close Business Intelligence Modal
+ */
+function closeBusinessIntelligenceModal() {
+    const modal = document.getElementById('businessIntelligenceModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        
+        // Remove escape key listener
+        document.removeEventListener('keydown', handleModalEscape);
+    }
+}
+
+/**
+ * Handle Escape key to close modal
+ */
+function handleModalEscape(event) {
+    if (event.key === 'Escape') {
+        closeBusinessIntelligenceModal();
+    }
+}
+
+// Close modal when clicking outside content
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('businessIntelligenceModal');
+    if (modal && event.target === modal) {
+        closeBusinessIntelligenceModal();
+    }
+});
+
 // Make functions available globally for HTML onclick handlers
 window.handleCredentialResponse = handleCredentialResponse;
 window.signOut = signOut;
@@ -1606,4 +1651,6 @@ window.testStripeConnection = testStripeConnection;
 window.updateStripeStatus = updateStripeStatus;
 window.runScenarioAnalysis = runScenarioAnalysis;
 window.updateSubscriptionRate = updateSubscriptionRate;
-window.runDetailedAnalysis = runDetailedAnalysis; 
+window.runDetailedAnalysis = runDetailedAnalysis;
+window.openBusinessIntelligenceModal = openBusinessIntelligenceModal;
+window.closeBusinessIntelligenceModal = closeBusinessIntelligenceModal; 
