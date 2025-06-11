@@ -208,22 +208,19 @@ async function loadAnalyticsData() {
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         let analyticsData = null;
-        let dataSource = 'demo';
+        let dataSource = 'real';
         
-        // Attempt to load real Google Analytics data if properly configured
+        // Only attempt to load real Google Analytics data
         if (CONFIG.ANALYTICS_PROPERTY_ID !== 'GA4_MEASUREMENT_ID') {
             try {
                 analyticsData = await fetchRealAnalyticsData();
-                dataSource = 'real';
                 console.log('✅ Real Google Analytics data loaded successfully');
             } catch (realDataError) {
-                console.log('⚠️ Real analytics unavailable, using enhanced demo:', realDataError.message);
-                analyticsData = await fetchEnhancedDemoData();
+                console.log('⚠️ Real analytics data not available yet:', realDataError.message);
+                throw new Error('Real visitor data not available yet. Google Analytics needs 24-48 hours to collect meaningful data.');
             }
         } else {
-            // Use enhanced demo data with realistic patterns
-            analyticsData = await fetchEnhancedDemoData();
-            console.log('📊 Using enhanced demo data (configure GA4_MEASUREMENT_ID for real data)');
+            throw new Error('Google Analytics not configured. Please set up GA4_MEASUREMENT_ID first.');
         }
         
         // Update the display with formatted numbers
@@ -233,8 +230,7 @@ async function loadAnalyticsData() {
         document.getElementById('bounceRate').textContent = analyticsData.bounceRate + '%';
         
         // Show data source in console for transparency
-        const sourceInfo = dataSource === 'real' ? '📊 Live Analytics' : '📈 Demo Analytics';
-        console.log(`Dashboard updated with ${sourceInfo}`);
+        console.log('📊 Dashboard updated with real Google Analytics data');
         
         // Show data, hide loading
         loadingElement.style.display = 'none';
@@ -243,9 +239,16 @@ async function loadAnalyticsData() {
     } catch (error) {
         console.error('Analytics Error:', error);
         
-        // Show error
+        // Show helpful error message
         loadingElement.style.display = 'none';
-        document.getElementById('analyticsErrorText').textContent = error.message;
+        let errorMessage = error.message;
+        
+        // Provide helpful guidance based on error type
+        if (error.message.includes('24-48 hours')) {
+            errorMessage += '\n\n💡 To generate data: Visit your website, share it with others, and check back tomorrow!';
+        }
+        
+        document.getElementById('analyticsErrorText').textContent = errorMessage;
         errorElement.style.display = 'block';
     }
 }
