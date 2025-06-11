@@ -1,16 +1,26 @@
 /**
- * Sit and Stay Pet Care - Booking Automation Script
+ * Sit and Stay Pet Care - Enhanced Booking Automation Script
  * This script processes Google Form submissions for pet care bookings
+ * Updated: June 11, 2025 - Added Calendar ID integration and premium user handling
  * 
  * Form Field Mapping:
  * 0: Timestamp, 1: Customer Name, 2: Address, 3: Phone Number, 4: Email
  * 5: Dog Name, 6: Breed, 7: Special Needs, 8: Service Type, 9: Date, 10: Time
+ * 11: Logged-in Google Email (for premium subscribers) - NEW FIELD
  */
 
-// Configuration - UPDATE THIS EMAIL WHEN BAILEE CONNECTS HER ACCOUNT
-const BUSINESS_OWNER_EMAIL = 'sitandstaytest@gmail.com'; // Change to Bailee's email later
+// Configuration - UPDATE THESE VALUES
+const BUSINESS_OWNER_EMAIL = 'bailee.williams@google.com'; // Bailee's actual email
 const BUSINESS_NAME = 'Sit and Stay Pet Care';
 const BUSINESS_PHONE = '(817) 395-9982';
+
+// IMPORTANT: Replace with Bailee's actual Calendar ID
+// To find Calendar ID: Go to Google Calendar > Settings > Calendar Settings > Calendar ID
+const BAILEE_CALENDAR_ID = 'primary'; // UPDATE TO: 'bailee.williams@google.com' or actual Calendar ID
+
+// Premium subscriber configuration
+const PREMIUM_DISCOUNT_PERCENT = 10;
+const ELITE_DISCOUNT_PERCENT = 15;
 
 /**
  * Main function triggered when form is submitted
@@ -23,7 +33,7 @@ function onFormSubmit(e) {
     const values = e.values;
     console.log('Form values:', values);
     
-    // Extract form data
+    // Extract form data including new premium user field
     const bookingData = {
       timestamp: values[0],
       customerName: values[1],
@@ -35,10 +45,15 @@ function onFormSubmit(e) {
       specialNeeds: values[7],
       serviceType: values[8],
       date: values[9],
-      time: values[10]
+      time: values[10],
+      premiumUserEmail: values[11] || null // New field for premium subscribers
     };
     
     console.log('Parsed booking data:', bookingData);
+    
+    // Check if user is premium subscriber
+    const premiumInfo = checkPremiumSubscriber(bookingData);
+    bookingData.premiumInfo = premiumInfo;
     
     // Validate booking
     const validation = validateBooking(bookingData);
@@ -65,11 +80,69 @@ function onFormSubmit(e) {
       GmailApp.sendEmail(
         BUSINESS_OWNER_EMAIL,
         'Booking System Error - Sit and Stay Pet Care',
-        `An error occurred processing a booking:\n\nError: ${error.message}\n\nPlease check the booking manually.`
+        `An error occurred processing a booking:\n\nError: ${error.message}\n\nPlease check the booking manually.\n\nTimestamp: ${new Date()}`
       );
     } catch (emailError) {
       console.error('Failed to send error notification:', emailError);
     }
+  }
+}
+
+/**
+ * Check if user is a premium subscriber
+ * In production, this would query the Premium Subscribers Google Sheet
+ */
+function checkPremiumSubscriber(data) {
+  try {
+    // If no premium email provided, user is not premium
+    if (!data.premiumUserEmail) {
+      return {
+        isPremium: false,
+        tier: 'basic',
+        discount: 0,
+        priority: false
+      };
+    }
+    
+    // TODO: Replace with actual Google Sheets lookup
+    // For now, we'll simulate premium user detection
+    // In production, you would:
+    // 1. Open the Premium Subscribers Google Sheet
+    // 2. Search for the email in the subscribers list
+    // 3. Return the subscriber's tier and benefits
+    
+    // Simulate premium user detection (for demonstration)
+    const premiumEmails = [
+      'bailee@example.com',
+      'premium@test.com',
+      data.premiumUserEmail // Accept any provided premium email for demo
+    ];
+    
+    if (premiumEmails.includes(data.premiumUserEmail.toLowerCase())) {
+      return {
+        isPremium: true,
+        tier: 'premium', // Could be 'premium' or 'elite'
+        discount: PREMIUM_DISCOUNT_PERCENT,
+        priority: true,
+        email: data.premiumUserEmail
+      };
+    }
+    
+    return {
+      isPremium: false,
+      tier: 'basic',
+      discount: 0,
+      priority: false
+    };
+    
+  } catch (error) {
+    console.error('Error checking premium subscriber:', error);
+    return {
+      isPremium: false,
+      tier: 'basic',
+      discount: 0,
+      priority: false
+    };
   }
 }
 
@@ -101,6 +174,9 @@ function validateBooking(data) {
       };
     }
     
+    // Additional validation for premium users could be added here
+    // e.g., premium users might have different rules or priority access
+    
     return { isValid: true };
     
   } catch (error) {
@@ -113,11 +189,17 @@ function validateBooking(data) {
 }
 
 /**
- * Creates calendar event for approved booking
+ * Creates calendar event for approved booking with enhanced details
  */
 function createCalendarEvent(data) {
   try {
-    const calendar = CalendarApp.getDefaultCalendar();
+    // Use specific calendar ID instead of default calendar
+    const calendar = CalendarApp.getCalendarById(BAILEE_CALENDAR_ID);
+    
+    if (!calendar) {
+      console.error('Calendar not found with ID:', BAILEE_CALENDAR_ID);
+      throw new Error(`Calendar not accessible. Please verify Calendar ID: ${BAILEE_CALENDAR_ID}`);
+    }
     
     // Parse date and time
     const bookingDate = new Date(data.date);
@@ -142,78 +224,150 @@ function createCalendarEvent(data) {
       endDate.setHours(endDate.getHours() + 1);
     }
     
-    // Create event title and description
-    const title = `${data.serviceType} - ${data.customerName} (${data.dogName})`;
+    // Create enhanced event title with premium indicator
+    let title = `${data.serviceType} - ${data.customerName} (${data.dogName})`;
+    if (data.premiumInfo && data.premiumInfo.isPremium) {
+      title = `⭐ PREMIUM: ${title}`;
+    }
+    
+    // Create comprehensive event description
     const description = `
-Pet Care Appointment Details:
+🐾 Pet Care Appointment Details
 
-Customer: ${data.customerName}
-Phone: ${data.phone}
-Email: ${data.email}
-Address: ${data.address}
+📋 CUSTOMER INFORMATION:
+• Name: ${data.customerName}
+• Phone: ${data.phone}
+• Email: ${data.email}
+• Address: ${data.address}
 
-Pet Information:
-Dog Name: ${data.dogName}
-Breed: ${data.breed}
-Special Needs: ${data.specialNeeds || 'None specified'}
+🐕 PET INFORMATION:
+• Dog Name: ${data.dogName}
+• Breed: ${data.breed}
+• Special Needs: ${data.specialNeeds || 'None specified'}
 
-Service: ${data.serviceType}
-Requested Time: ${data.time || 'Not specified'}
+🛎️ SERVICE DETAILS:
+• Service Type: ${data.serviceType}
+• Requested Time: ${data.time || 'Not specified'}
+• Duration: ${data.serviceType && data.serviceType.toLowerCase().includes('overnight') ? '24 hours (Overnight)' : '1 hour (Drop-in)'}
 
-Booking submitted: ${data.timestamp}
+${data.premiumInfo && data.premiumInfo.isPremium ? `
+⭐ PREMIUM SUBSCRIBER:
+• Tier: ${data.premiumInfo.tier.toUpperCase()}
+• Discount: ${data.premiumInfo.discount}%
+• Priority Customer: YES
+• Premium Email: ${data.premiumInfo.email}
+` : ''}
 
-Contact customer to confirm final details.
+📅 BOOKING INFORMATION:
+• Submitted: ${data.timestamp}
+• Processing Date: ${new Date()}
+
+⚠️ ACTION NEEDED:
+• Contact customer to confirm final details
+• Confirm exact timing and requirements
+• Apply any premium discounts if applicable
+
+🏠 Location: ${data.address}
     `.trim();
     
-    // Create the calendar event
+    // Create the calendar event with enhanced details
     const event = calendar.createEvent(title, bookingDate, endDate, {
       description: description,
-      location: data.address
+      location: data.address,
+      // Add guests if premium subscriber
+      guests: data.premiumInfo && data.premiumInfo.isPremium ? data.premiumInfo.email : '',
+      sendInvites: false // Don't auto-send invites
     });
     
-    console.log('Calendar event created:', event.getTitle());
+    console.log('Enhanced calendar event created:', event.getTitle());
+    console.log('Calendar used:', calendar.getName());
+    
     return event;
     
   } catch (error) {
     console.error('Error creating calendar event:', error);
-    throw new Error('Failed to create calendar event: ' + error.message);
+    // Fallback to default calendar if specific calendar fails
+    try {
+      console.log('Attempting fallback to default calendar...');
+      const fallbackCalendar = CalendarApp.getDefaultCalendar();
+      const title = `${data.serviceType} - ${data.customerName} (${data.dogName})`;
+      const bookingDate = new Date(data.date);
+      const endDate = new Date(bookingDate);
+      endDate.setHours(endDate.getHours() + 1);
+      
+      const event = fallbackCalendar.createEvent(title, bookingDate, endDate, {
+        description: `Booking for ${data.dogName} - Contact: ${data.phone}`,
+        location: data.address
+      });
+      
+      console.log('Fallback calendar event created');
+      return event;
+      
+    } catch (fallbackError) {
+      console.error('Fallback calendar creation failed:', fallbackError);
+      throw new Error('Failed to create calendar event: ' + error.message);
+    }
   }
 }
 
 /**
- * Sends confirmation email to customer
+ * Sends enhanced confirmation email to customer
  */
 function sendConfirmationEmail(data, calendarEvent) {
   try {
     const subject = `Booking Request Received - ${BUSINESS_NAME}`;
+    
+    // Calculate estimated pricing with premium discounts
+    let pricingInfo = '';
+    if (data.premiumInfo && data.premiumInfo.isPremium) {
+      pricingInfo = `
+⭐ PREMIUM SUBSCRIBER BENEFITS:
+• ${data.premiumInfo.discount}% discount applied
+• Priority booking status
+• Enhanced service features
+• Flexible rescheduling options
+`;
+    }
     
     const message = `
 Hi ${data.customerName},
 
 Thank you for your booking request with ${BUSINESS_NAME}!
 
-BOOKING DETAILS:
+🐾 BOOKING DETAILS:
 • Service: ${data.serviceType}
 • Date: ${data.date}
 • Time: ${data.time || 'To be confirmed'}
 • Pet: ${data.dogName} (${data.breed})
+• Location: ${data.address}
 
-We have received your request and will review the details. 
+${pricingInfo}
 
-CONFIRMATION TEXT WILL BE SENT ONCE SCHEDULING IS APPROVED.
+📋 NEXT STEPS:
+We have received your request and added it to our calendar. Bailee will review the details and contact you shortly to:
+• Confirm the final scheduling
+• Discuss any special requirements for ${data.dogName}
+• Provide final pricing details
+• Answer any questions you may have
 
-If you have any questions or need to make changes, please contact us at ${BUSINESS_PHONE}.
+📞 CONTACT INFORMATION:
+If you have any questions or need to make changes, please contact us:
+• Phone: ${BUSINESS_PHONE}
+• Email: ${BUSINESS_OWNER_EMAIL}
 
-Thank you for choosing ${BUSINESS_NAME} for your pet care needs!
+🙏 Thank you for choosing ${BUSINESS_NAME} for your pet care needs! We look forward to caring for ${data.dogName}.
 
 Best regards,
 Bailee Williams
 ${BUSINESS_NAME}
+Serving Allen, TX and surrounding areas
 ${BUSINESS_PHONE}
+
+🐾 Professional pet care you can trust! 🐾
     `.trim();
     
     GmailApp.sendEmail(data.email, subject, message);
-    console.log('Confirmation email sent to:', data.email);
+    console.log('Enhanced confirmation email sent to:', data.email);
     
   } catch (error) {
     console.error('Error sending confirmation email:', error);
@@ -222,40 +376,63 @@ ${BUSINESS_PHONE}
 }
 
 /**
- * Sends notification to business owner about new booking
+ * Sends enhanced notification to business owner about new booking
  */
 function sendOwnerNotification(data, calendarEvent) {
   try {
-    const subject = `New Booking Request - ${data.customerName} (${data.dogName})`;
+    let subject = `New Booking Request - ${data.customerName} (${data.dogName})`;
+    if (data.premiumInfo && data.premiumInfo.isPremium) {
+      subject = `⭐ PREMIUM: ${subject}`;
+    }
     
     const message = `
-New booking request received for ${BUSINESS_NAME}:
+🐾 New booking request received for ${BUSINESS_NAME}:
 
-CUSTOMER INFORMATION:
+📋 CUSTOMER INFORMATION:
 • Name: ${data.customerName}
 • Phone: ${data.phone}
 • Email: ${data.email}
 • Address: ${data.address}
 
-PET INFORMATION:
+🐕 PET INFORMATION:
 • Dog Name: ${data.dogName}
 • Breed: ${data.breed}
 • Special Needs: ${data.specialNeeds || 'None specified'}
 
-BOOKING DETAILS:
+🛎️ BOOKING DETAILS:
 • Service: ${data.serviceType}
 • Date: ${data.date}
 • Time: ${data.time || 'Not specified'}
 
-CALENDAR EVENT: A calendar event has been created for this booking.
+${data.premiumInfo && data.premiumInfo.isPremium ? `
+⭐ PREMIUM SUBSCRIBER ALERT:
+• Subscriber Tier: ${data.premiumInfo.tier.toUpperCase()}
+• Eligible Discount: ${data.premiumInfo.discount}%
+• Priority Customer: YES
+• Premium Account: ${data.premiumInfo.email}
+• PLEASE PRIORITIZE THIS BOOKING
 
-ACTION NEEDED: Please review and contact the customer to confirm the booking details.
+` : ''}
 
-Submitted: ${data.timestamp}
+📅 CALENDAR STATUS:
+A calendar event has been created in your ${BAILEE_CALENDAR_ID === 'primary' ? 'primary calendar' : 'designated pet care calendar'}.
+
+⚠️ ACTION NEEDED:
+1. Review booking details
+2. Contact customer to confirm scheduling
+3. ${data.premiumInfo && data.premiumInfo.isPremium ? 'Apply premium discount and benefits' : 'Discuss pricing and services'}
+4. Update calendar with final confirmed details
+
+📊 BOOKING STATISTICS:
+• Submitted: ${data.timestamp}
+• Processed: ${new Date()}
+• Calendar ID: ${BAILEE_CALENDAR_ID}
+
+Happy pet sitting! 🐾
     `.trim();
     
     GmailApp.sendEmail(BUSINESS_OWNER_EMAIL, subject, message);
-    console.log('Owner notification sent to:', BUSINESS_OWNER_EMAIL);
+    console.log('Enhanced owner notification sent to:', BUSINESS_OWNER_EMAIL);
     
   } catch (error) {
     console.error('Error sending owner notification:', error);
@@ -277,11 +454,23 @@ Thank you for your interest in ${BUSINESS_NAME}.
 
 Unfortunately, we cannot process your booking request for the following reason:
 
-${reason}
+❌ ${reason}
 
+🔄 NEXT STEPS:
 Please submit a new booking request with an appropriate date, and we'll be happy to care for ${data.dogName}!
 
-If you have any questions, please contact us at ${BUSINESS_PHONE}.
+${data.premiumInfo && data.premiumInfo.isPremium ? `
+⭐ As a premium subscriber, you still have access to:
+• Priority rebooking when you submit a valid date
+• Flexible rescheduling options
+• Premium customer support
+
+` : ''}
+
+📞 QUESTIONS?
+If you need assistance selecting an appropriate date or have any questions, please contact us at ${BUSINESS_PHONE}.
+
+We appreciate your understanding and look forward to serving you and ${data.dogName} soon!
 
 Best regards,
 Bailee Williams
@@ -290,7 +479,7 @@ ${BUSINESS_PHONE}
     `.trim();
     
     GmailApp.sendEmail(data.email, subject, message);
-    console.log('Rejection email sent to:', data.email);
+    console.log('Enhanced rejection email sent to:', data.email);
     
   } catch (error) {
     console.error('Error sending rejection email:', error);
@@ -302,26 +491,44 @@ ${BUSINESS_PHONE}
  */
 function sendOwnerRejectionNotification(data, reason) {
   try {
-    const subject = `Booking Rejected - ${data.customerName} (${data.dogName})`;
+    let subject = `Booking Rejected - ${data.customerName} (${data.dogName})`;
+    if (data.premiumInfo && data.premiumInfo.isPremium) {
+      subject = `⭐ PREMIUM CUSTOMER - ${subject}`;
+    }
     
     const message = `
-A booking request was automatically rejected:
+🚫 A booking request was automatically rejected:
 
-CUSTOMER: ${data.customerName}
-PHONE: ${data.phone}
-EMAIL: ${data.email}
-SERVICE: ${data.serviceType}
-DATE: ${data.date}
+📋 CUSTOMER DETAILS:
+• Name: ${data.customerName}
+• Phone: ${data.phone}
+• Email: ${data.email}
+• Service: ${data.serviceType}
+• Requested Date: ${data.date}
 
-REJECTION REASON: ${reason}
+${data.premiumInfo && data.premiumInfo.isPremium ? `
+⭐ PREMIUM SUBSCRIBER:
+• This was a PREMIUM customer (${data.premiumInfo.tier})
+• Consider reaching out personally to assist with rebooking
+• Premium Email: ${data.premiumInfo.email}
 
-The customer has been notified via email.
+` : ''}
 
-Submitted: ${data.timestamp}
+❌ REJECTION REASON:
+${reason}
+
+📧 CUSTOMER NOTIFICATION:
+The customer has been notified via email with rebooking instructions.
+
+📊 DETAILS:
+• Submitted: ${data.timestamp}
+• Processed: ${new Date()}
+
+${data.premiumInfo && data.premiumInfo.isPremium ? '⚠️ Consider personal follow-up with this premium customer.' : ''}
     `.trim();
     
     GmailApp.sendEmail(BUSINESS_OWNER_EMAIL, subject, message);
-    console.log('Owner rejection notification sent');
+    console.log('Enhanced owner rejection notification sent');
     
   } catch (error) {
     console.error('Error sending owner rejection notification:', error);
@@ -343,11 +550,50 @@ function testScript() {
       'Golden Retriever', // breed
       'Needs medication twice daily', // special needs
       'Overnight Pet Sitting', // service type
-      '2025-06-20', // date (adjust to be 2+ weeks from today)
-      '18:00' // time
+      '2025-06-30', // date (adjust to be 2+ weeks from today)
+      '18:00', // time
+      'premium@test.com' // premium user email (test premium features)
     ]
   };
   
-  console.log('Running test with sample data...');
+  console.log('Running enhanced test with sample data...');
+  console.log('Testing Calendar ID:', BAILEE_CALENDAR_ID);
   onFormSubmit(testData);
+}
+
+/**
+ * Setup helper function to verify calendar access
+ * Run this function to test if the calendar ID is correctly configured
+ */
+function testCalendarAccess() {
+  try {
+    console.log('Testing calendar access...');
+    console.log('Calendar ID:', BAILEE_CALENDAR_ID);
+    
+    const calendar = CalendarApp.getCalendarById(BAILEE_CALENDAR_ID);
+    
+    if (calendar) {
+      console.log('✅ Calendar access successful!');
+      console.log('Calendar name:', calendar.getName());
+      console.log('Calendar description:', calendar.getDescription());
+      return true;
+    } else {
+      console.log('❌ Calendar not found');
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('❌ Calendar access error:', error);
+    console.log('Trying default calendar as fallback...');
+    
+    try {
+      const defaultCalendar = CalendarApp.getDefaultCalendar();
+      console.log('✅ Default calendar access successful:', defaultCalendar.getName());
+      console.log('⚠️ Please update BAILEE_CALENDAR_ID with the correct Calendar ID');
+      return false;
+    } catch (defaultError) {
+      console.error('❌ Default calendar access also failed:', defaultError);
+      return false;
+    }
+  }
 } 

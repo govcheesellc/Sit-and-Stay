@@ -4,8 +4,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subscription - Sit and Stay Pet Care</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/36/36456.png">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+    
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <style>
+        /* Subscription-specific styles */
+        .subscription-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .subscription-tiers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .tier-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .tier-card.premium {
+            border: 3px solid #f5a623;
+            position: relative;
+        }
+
+        .tier-card.premium::before {
+            content: "⭐ PREMIUM";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f5a623;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .tier-title {
+            color: #4a90e2;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .tier-price {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #f5a623;
+            margin: 15px 0;
+        }
+
+        .tier-benefits {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .tier-benefits li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+
+        .tier-benefits li:last-child {
+            border-bottom: none;
+        }
+
+        .tier-benefits li::before {
+            content: "✓";
+            color: #4a90e2;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .tier-benefits li.premium-only::before {
+            content: "⭐";
+            color: #f5a623;
+        }
+
+        .login-section {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .login-section h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+
+        .google-login-btn {
+            margin: 20px auto;
+            display: block;
+        }
+
+        .user-status {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .user-status.premium {
+            background: linear-gradient(135deg, #f5a623, #e09100);
+            color: white;
+            border: none;
+        }
+
+        .payment-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .payment-method {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #4a90e2;
+            transform: translateY(-2px);
+        }
+
+        .payment-method.available {
+            border-color: #4a90e2;
+        }
+
+        .payment-method.coming-soon {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .payment-method.coming-soon::after {
+            content: "COMING SOON";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.8em;
+        }
+
+        .subscribe-btn {
+            background: #4a90e2;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .subscribe-btn:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .subscribe-btn.premium {
+            background: linear-gradient(135deg, #f5a623, #e09100);
+        }
+
+        .subscribe-btn.premium:hover {
+            background: linear-gradient(135deg, #e09100, #cc7a00);
+        }
+
+        .subscribe-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .current-offers {
+            background: linear-gradient(135deg, #f5a623, #e09100);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .current-offers h2 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+                 .offer-item {
+             background: rgba(255, 255, 255, 0.1);
+             padding: 20px;
+             border-radius: 10px;
+             -webkit-backdrop-filter: blur(10px);
+             backdrop-filter: blur(10px);
+         }
+
+        .offer-item h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .subscription-tiers {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .offer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation bar -->
@@ -22,73 +290,202 @@
     
     <!-- Logo header -->
     <header>
-        <img src="https://cdn-icons-png.flaticon.com/512/1076/1076877.png" alt="Sit and Stay Pet Care Logo" style="display: block; margin: 20px auto; max-width: 100px;">
+        <div class="paw-icon">🐾</div>
+        <h1>Sit and Stay Pet Care</h1>
+        <p>Subscription Services</p>
     </header>
     
     <!-- Main content -->
-    <main>
-        <h1>Subscription Services</h1>
-        
-        <div style="text-align: center; margin-bottom: 40px;">
-            <p style="font-size: 1.2rem; color: #4a90e2;">
-                Coming Soon: Regular Pet Care Subscriptions
-            </p>
+    <main class="subscription-container">
+        <!-- User Status Section -->
+        <div id="userStatus" class="user-status">
+            <h3 id="userStatusTitle">Welcome back!</h3>
+            <p id="userStatusMessage">You're logged in and ready to enjoy premium benefits.</p>
+            <button onclick="signOut()" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Sign Out</button>
         </div>
-        
-        <section style="margin-bottom: 40px;">
-            <h2>What Are Subscription Services?</h2>
-            <p>
-                We're working on developing subscription-based pet care services that will allow you to secure regular, 
-                ongoing care for your pets at discounted rates. These services will be perfect for busy pet parents who 
-                need consistent, reliable care on a weekly or monthly basis.
-            </p>
-        </section>
-        
-        <section style="margin-bottom: 40px;">
-            <h2>Planned Subscription Options</h2>
-            <div style="background-color: #f9f7f3; padding: 25px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4a90e2;">
-                <h3 style="color: #4a90e2; margin-top: 0;">Future Subscription Plans:</h3>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li><strong>Weekly Drop-In Package:</strong> Regular weekly visits at a discounted rate</li>
-                    <li><strong>Bi-Weekly Care Package:</strong> Every other week scheduled visits</li>
-                    <li><strong>Monthly Overnight Package:</strong> Monthly overnight stays for regular travelers</li>
-                    <li><strong>Senior Pet Care Package:</strong> Specialized care for older pets needing extra attention</li>
-                    <li><strong>Puppy Care Package:</strong> Frequent visits for young pets needing training and socialization</li>
+
+        <!-- Current Offers Section -->
+        <div class="current-offers">
+            <h2>🎉 Limited Time Offers</h2>
+            <div class="offer-grid">
+                <div class="offer-item">
+                    <h4>Early Bird Special</h4>
+                    <p>50% off first month for new premium subscribers!</p>
+                </div>
+                <div class="offer-item">
+                    <h4>Loyalty Bonus</h4>
+                    <p>Refer a friend and get 1 week free!</p>
+                </div>
+                <div class="offer-item">
+                    <h4>Bundle Savings</h4>
+                    <p>Save 20% when you add bathing service!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Tiers -->
+        <h1 style="text-align: center; color: #4a90e2; margin-bottom: 10px;">Choose Your Plan</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 40px;">
+            Regular pet care services with exclusive benefits and priority booking
+        </p>
+
+        <div class="subscription-tiers">
+            <!-- Basic Tier -->
+            <div class="tier-card">
+                <h3 class="tier-title">Basic Plan</h3>
+                <div class="tier-price">$80<span style="font-size: 0.4em; color: #666;">/month</span></div>
+                <ul class="tier-benefits">
+                    <li>4 Drop-in visits per month</li>
+                    <li>Standard booking process</li>
+                    <li>Email confirmations</li>
+                    <li>Basic pet care updates</li>
+                    <li>Regular pricing</li>
+                </ul>
+                <button class="subscribe-btn" onclick="subscribeBasic()">Choose Basic</button>
+            </div>
+
+            <!-- Premium Tier -->
+            <div class="tier-card premium">
+                <h3 class="tier-title">Premium Plan</h3>
+                <div class="tier-price">$120<span style="font-size: 0.4em; color: #666;">/month</span></div>
+                <ul class="tier-benefits">
+                    <li>6 Drop-in visits per month</li>
+                    <li class="premium-only">10% discount on all services</li>
+                    <li class="premium-only">Priority booking access</li>
+                    <li class="premium-only">24/7 customer support</li>
+                    <li class="premium-only">Detailed photo updates</li>
+                    <li class="premium-only">Flexible rescheduling</li>
+                    <li class="premium-only">Holiday availability</li>
+                </ul>
+                <div id="premiumLoginSection" class="login-section">
+                    <h3>🔐 Premium Access Required</h3>
+                    <p>Sign in with Google to unlock premium benefits and exclusive features</p>
+                    
+                    <div id="g_id_onload"
+                         data-client_id="323272466004-n3vqvtmb0qumc92ngackscce8d4pjo5h.apps.googleusercontent.com"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="handleCredentialResponse"
+                         data-auto_prompt="false">
+                    </div>
+                    
+                    <div class="g_id_signin google-login-btn"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="filled_blue"
+                         data-text="signin_with"
+                         data-size="large"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+                <button id="premiumSubscribeBtn" class="subscribe-btn premium" onclick="subscribePremium()" disabled>
+                    Sign In for Premium
+                </button>
+            </div>
+
+            <!-- Elite Tier -->
+            <div class="tier-card">
+                <h3 class="tier-title">Elite Plan</h3>
+                <div class="tier-price">$180<span style="font-size: 0.4em; color: #666;">/month</span></div>
+                <ul class="tier-benefits">
+                    <li>Unlimited drop-in visits</li>
+                    <li>1 Overnight stay included</li>
+                    <li class="premium-only">15% discount on all services</li>
+                    <li class="premium-only">Dedicated pet care specialist</li>
+                    <li class="premium-only">Emergency availability</li>
+                    <li class="premium-only">Monthly health reports</li>
+                    <li class="premium-only">Complimentary bathing (2x/month)</li>
+                </ul>
+                <button class="subscribe-btn" onclick="subscribeElite()">Choose Elite</button>
+            </div>
+        </div>
+
+        <!-- Payment Methods Section -->
+        <div class="payment-section">
+            <h2>💳 Payment Methods</h2>
+            <p>Choose your preferred payment method for subscription services</p>
+            
+            <div class="payment-methods">
+                <div class="payment-method available">
+                    <h4>💸 Venmo</h4>
+                    <p>Quick and easy payment via Venmo</p>
+                    <p><strong>Available Now</strong></p>
+                </div>
+                
+                <div class="payment-method available">
+                    <h4>💵 Cash/Check</h4>
+                    <p>Traditional payment methods accepted</p>
+                    <p><strong>Available Now</strong></p>
+                </div>
+                
+                <div class="payment-method coming-soon">
+                    <h4>📱 Google Pay</h4>
+                    <p>Seamless integration with Google services</p>
+                    <p>Automatic billing and receipts</p>
+                </div>
+                
+                <div class="payment-method coming-soon">
+                    <h4>💳 Credit Cards</h4>
+                    <p>Visa, MasterCard, American Express</p>
+                    <p>Secure online processing</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 10px; border-left: 4px solid #2196f3;">
+                <h4 style="color: #1976d2; margin-top: 0;">🚀 Google Pay Integration Coming Soon!</h4>
+                <p style="margin-bottom: 0;">
+                    We're working on integrating Google Pay for seamless subscription management. This will include:
+                </p>
+                <ul style="margin: 10px 0 0 20px; color: #1565c0;">
+                    <li>Automatic recurring billing</li>
+                    <li>Secure payment processing</li>
+                    <li>Instant payment confirmations</li>
+                    <li>Easy subscription management</li>
+                    <li>Digital receipts and tracking</li>
                 </ul>
             </div>
+        </div>
+
+        <!-- Benefits Overview -->
+        <section style="margin: 40px 0;">
+            <h2 style="text-align: center; color: #4a90e2;">Why Choose Subscription Services?</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin: 30px 0;">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">💰</div>
+                    <h3 style="color: #4a90e2;">Cost Savings</h3>
+                    <p>Save up to 15% compared to individual bookings with our subscription plans.</p>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">⭐</div>
+                    <h3 style="color: #4a90e2;">Priority Access</h3>
+                    <p>Premium subscribers get first priority for booking preferred time slots.</p>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🤝</div>
+                    <h3 style="color: #4a90e2;">Consistency</h3>
+                    <p>Same trusted caregiver builds lasting relationships with your pets.</p>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">📱</div>
+                    <h3 style="color: #4a90e2;">Convenience</h3>
+                    <p>Automatic scheduling and easy subscription management online.</p>
+                </div>
+            </div>
         </section>
-        
-        <section style="margin-bottom: 40px;">
-            <h2>Benefits of Subscription Services</h2>
-            <p>
-                Subscription services will offer several advantages over individual bookings:
-            </p>
-            <ul>
-                <li><strong>Cost Savings:</strong> Discounted rates compared to individual service bookings</li>
-                <li><strong>Priority Scheduling:</strong> Guaranteed availability for your preferred time slots</li>
-                <li><strong>Consistency:</strong> The same trusted caregiver for your pet every visit</li>
-                <li><strong>Convenience:</strong> Automatic scheduling without the need to book each visit</li>
-                <li><strong>Flexibility:</strong> Easy to modify or pause your subscription as needed</li>
-            </ul>
-        </section>
-        
-        <section style="margin-bottom: 40px;">
-            <h2>Get Notified</h2>
-            <p>
-                We're currently developing these subscription services and expect to launch them soon. If you're interested 
-                in being among the first to know when subscription services become available, please contact us at 
-                <strong>(817) 395-9982</strong> or through our booking form.
-            </p>
-            <p>
-                In the meantime, we're happy to help you schedule regular services through our standard booking process.
-            </p>
-        </section>
-        
+
         <!-- Call to Action -->
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="booking.html" class="book-now-btn">Book Individual Services Now</a>
-            <div style="margin-top: 15px;">
-                <a href="contact.html" style="color: #4a90e2; text-decoration: underline;">Contact Us About Subscriptions</a>
+        <div style="text-align: center; margin: 40px 0; padding: 40px; background: linear-gradient(135deg, #4a90e2, #357abd); color: white; border-radius: 15px;">
+            <h2 style="margin-top: 0;">Ready to Get Started?</h2>
+            <p style="font-size: 1.1em; margin-bottom: 30px;">
+                Join hundreds of satisfied pet parents who trust us with their furry family members.
+            </p>
+            <div>
+                <a href="booking.html" class="subscribe-btn" style="background: white; color: #4a90e2; margin: 10px;">
+                    Book Single Service
+                </a>
+                <a href="contact.html" class="subscribe-btn" style="background: #f5a623; margin: 10px;">
+                    Contact Us
+                </a>
             </div>
         </div>
     </main>
@@ -96,6 +493,11 @@
     <!-- Footer -->
     <footer>
         <p>&copy; 2025 Sit and Stay Pet Care. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+            Serving Allen, Texas and surrounding areas within 10 miles of ZIP 75002
+        </p>
     </footer>
+
+    <script src="subscription.js"></script>
 </body>
 </html> 
