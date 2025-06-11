@@ -62,6 +62,7 @@ let currentUser = null;
 let isAuthenticated = false;
 let currentPageContent = '';
 let selectedPage = '';
+let analyticsRefreshInterval = null;
 
 /**
  * Initialize the admin dashboard when page loads
@@ -171,8 +172,9 @@ function handleSuccessfulLogin(user) {
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('userAvatar').src = user.picture;
     
-    // Load analytics data
+    // Load analytics data and start auto-refresh
     loadAnalyticsData();
+    startAnalyticsAutoRefresh();
     
     console.log('Admin Dashboard Loaded Successfully');
 }
@@ -218,6 +220,12 @@ function signOut() {
     // Reset variables
     currentUser = null;
     isAuthenticated = false;
+    
+    // Stop analytics auto-refresh
+    if (analyticsRefreshInterval) {
+        clearInterval(analyticsRefreshInterval);
+        analyticsRefreshInterval = null;
+    }
     
     // Show login section, hide dashboard
     document.getElementById('loginSection').style.display = 'block';
@@ -290,6 +298,71 @@ async function loadAnalyticsData() {
         
         document.getElementById('analyticsErrorText').textContent = errorMessage;
         errorElement.style.display = 'block';
+        
+        // If it's a "24-48 hours" error, show auto-refresh message
+        if (error.message.includes('24-48 hours')) {
+            showAutoRefreshMessage();
+        }
+    }
+}
+
+/**
+ * Start automatic refresh of analytics data every 30 minutes
+ */
+function startAnalyticsAutoRefresh() {
+    // Clear any existing interval
+    if (analyticsRefreshInterval) {
+        clearInterval(analyticsRefreshInterval);
+    }
+    
+    // Refresh every 30 minutes (1800000 ms)
+    analyticsRefreshInterval = setInterval(() => {
+        console.log('🔄 Auto-refreshing analytics data...');
+        loadAnalyticsData();
+    }, 1800000);
+    
+    console.log('✅ Analytics auto-refresh started (every 30 minutes)');
+}
+
+/**
+ * Show auto-refresh message to user
+ */
+function showAutoRefreshMessage() {
+    // Add auto-refresh info to the error message
+    const errorElement = document.getElementById('analyticsErrorText');
+    const currentMessage = errorElement.textContent;
+    
+    if (!currentMessage.includes('auto-refresh')) {
+        errorElement.textContent = currentMessage + '\n\n🔄 Auto-refresh enabled: This page will automatically check for new data every 30 minutes. You can also refresh manually.';
+        
+        // Add a manual refresh button
+        const errorContainer = document.getElementById('analyticsError');
+        if (!document.getElementById('manualRefreshBtn')) {
+            const refreshBtn = document.createElement('button');
+            refreshBtn.id = 'manualRefreshBtn';
+            refreshBtn.textContent = '🔄 Refresh Now';
+            refreshBtn.style.cssText = `
+                background: #4a90e2;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                font-family: 'Poppins', sans-serif;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 15px;
+                transition: all 0.3s ease;
+            `;
+            refreshBtn.onclick = () => {
+                refreshBtn.textContent = '🔄 Checking...';
+                refreshBtn.disabled = true;
+                loadAnalyticsData().finally(() => {
+                    refreshBtn.textContent = '🔄 Refresh Now';
+                    refreshBtn.disabled = false;
+                });
+            };
+            errorContainer.appendChild(refreshBtn);
+        }
     }
 }
 
