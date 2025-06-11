@@ -1624,11 +1624,54 @@ function handleModalEscape(event) {
     }
 }
 
-// Close modal when clicking outside content
+/**
+ * Open System Overview Modal
+ */
+function openSystemOverviewModal() {
+    const modal = document.getElementById('systemOverviewModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Add escape key listener
+        document.addEventListener('keydown', handleSystemModalEscape);
+    }
+}
+
+/**
+ * Close System Overview Modal
+ */
+function closeSystemOverviewModal() {
+    const modal = document.getElementById('systemOverviewModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        
+        // Remove escape key listener
+        document.removeEventListener('keydown', handleSystemModalEscape);
+    }
+}
+
+/**
+ * Handle Escape key to close system modal
+ */
+function handleSystemModalEscape(event) {
+    if (event.key === 'Escape') {
+        closeSystemOverviewModal();
+    }
+}
+
+// Close modals when clicking outside content
 document.addEventListener('click', function(event) {
-    const modal = document.getElementById('businessIntelligenceModal');
-    if (modal && event.target === modal) {
+    const biModal = document.getElementById('businessIntelligenceModal');
+    const systemModal = document.getElementById('systemOverviewModal');
+    
+    if (biModal && event.target === biModal) {
         closeBusinessIntelligenceModal();
+    }
+    
+    if (systemModal && event.target === systemModal) {
+        closeSystemOverviewModal();
     }
 });
 
@@ -1653,4 +1696,6 @@ window.runScenarioAnalysis = runScenarioAnalysis;
 window.updateSubscriptionRate = updateSubscriptionRate;
 window.runDetailedAnalysis = runDetailedAnalysis;
 window.openBusinessIntelligenceModal = openBusinessIntelligenceModal;
-window.closeBusinessIntelligenceModal = closeBusinessIntelligenceModal; 
+window.closeBusinessIntelligenceModal = closeBusinessIntelligenceModal;
+window.openSystemOverviewModal = openSystemOverviewModal;
+window.closeSystemOverviewModal = closeSystemOverviewModal; 

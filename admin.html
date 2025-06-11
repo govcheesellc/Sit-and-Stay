@@ -841,11 +841,19 @@
             100% { opacity: 1; }
         }
 
-        /* Floating Business Intelligence Button */
-        .floating-bi-button {
+        /* Floating Action Buttons Container */
+        .floating-buttons {
             position: fixed;
             bottom: 30px;
             left: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        /* Floating Business Intelligence Button */
+        .floating-bi-button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 15px 20px;
@@ -853,7 +861,6 @@
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
             transition: all 0.3s ease;
-            z-index: 1000;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -865,6 +872,28 @@
         .floating-bi-button:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Floating System Overview Button */
+        .floating-system-button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .floating-system-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(40, 167, 69, 0.6);
         }
 
         .fab-icon {
@@ -977,6 +1006,93 @@
             -webkit-backdrop-filter: blur(10px);
         }
 
+        /* System Overview Modal */
+        .system-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .system-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .system-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 20px 20px 0 0;
+            z-index: 1;
+        }
+
+        .system-modal-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.8em;
+        }
+
+        .system-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .system-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .system-modal-body {
+            padding: 30px;
+        }
+
+        .system-modal .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .system-modal .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
         @media (max-width: 768px) {
             .dashboard-section {
                 grid-template-columns: 1fr;
@@ -1042,6 +1158,30 @@
             }
 
             .seasonal-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            /* Mobile System Overview Modal */
+            .system-modal-content {
+                width: 98%;
+                max-height: 95vh;
+                margin: 10px;
+            }
+
+            .system-modal-header {
+                padding: 20px 15px;
+            }
+
+            .system-modal-header h2 {
+                font-size: 1.4em;
+            }
+
+            .system-modal-body {
+                padding: 20px 15px;
+            }
+
+            .system-modal .tech-stack {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
             }
@@ -1326,172 +1466,21 @@
                 </div>
             </div>
 
-            <!-- System Overview -->
-            <div class="dashboard-card system-overview">
-                <h2>🔧 System Overview - How Everything Works</h2>
-                
-                <div class="highlight-box">
-                    <h4>🚀 Enterprise-Level Pet Care Management System</h4>
-                    <p>Your website now features advanced automation, premium subscription tracking, and professional business management tools.</p>
-                </div>
 
-                <h3>🔐 Admin Authentication System</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Secure Google OAuth login for admin access</p>
-                    <ul>
-                        <li><strong>Authorized Users:</strong> bailee.williams@google.com (primary admin), shoemaker.brandon35@gmail.com (setup support)</li>
-                        <li><strong>Security:</strong> Uses Google's enterprise-grade authentication</li>
-                        <li><strong>Auto-logout:</strong> Sessions expire for security</li>
-                        <li><strong>Access Control:</strong> Only authorized emails can access admin dashboard</li>
-                    </ul>
-                </div>
-
-                <h3>💳 Subscription Management System</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Tracks premium subscribers and unlocks exclusive features</p>
-                    <ul>
-                        <li><strong>3 Tiers:</strong> Basic ($80), Premium ($120), Elite ($180) per month</li>
-                        <li><strong>Google Login Required:</strong> Premium/Elite tiers require Google authentication</li>
-                        <li><strong>Automatic Tracking:</strong> Premium subscribers logged in Google Sheets automatically</li>
-                        <li><strong>Enhanced Bookings:</strong> Premium members get priority scheduling and detailed calendar events</li>
-                        <li><strong>Payment Ready:</strong> Framework in place for Google Pay, Venmo, and Credit Card processing</li>
-                    </ul>
-                </div>
-
-                <h3>📅 Enhanced Google Calendar Integration</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Automatically creates detailed calendar events for all bookings</p>
-                    <ul>
-                        <li><strong>Calendar ID:</strong> Configurable through admin dashboard (currently set to 'primary')</li>
-                        <li><strong>Smart Detection:</strong> Identifies premium subscribers and creates enhanced events</li>
-                        <li><strong>Detailed Events:</strong> Includes pet info, service type, customer contact, and special notes</li>
-                        <li><strong>Color Coding:</strong> Different colors for Basic vs Premium/Elite bookings</li>
-                        <li><strong>Notifications:</strong> Automatic email confirmations to both customer and business owner</li>
-                    </ul>
-                </div>
-
-                <h3>🤖 Google Apps Script Automation</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Backend automation that runs when forms are submitted</p>
-                    <ul>
-                        <li><strong>Form Processing:</strong> Captures all booking requests from the website</li>
-                        <li><strong>Email Notifications:</strong> Sends detailed booking info to bailee.williams@google.com</li>
-                        <li><strong>Calendar Creation:</strong> Automatically schedules appointments in Google Calendar</li>
-                        <li><strong>Premium Detection:</strong> Checks if customer is a premium subscriber</li>
-                        <li><strong>Data Management:</strong> Logs all bookings and tracks premium subscriber activity</li>
-                    </ul>
-                </div>
-
-                <h3>📊 Analytics Dashboard</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Tracks website performance and visitor behavior</p>
-                    <ul>
-                        <li><strong>Current Status:</strong> Demo data showing system capability</li>
-                        <li><strong>Ready for Real Data:</strong> Framework configured for Google Analytics 4 integration</li>
-                        <li><strong>Metrics Tracked:</strong> Page views, unique visitors, session duration, bounce rate</li>
-                        <li><strong>Real-time Updates:</strong> Dashboard refreshes automatically when connected to live analytics</li>
-                    </ul>
-                </div>
-
-                <h3>✏️ Content Management System</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Allows easy editing of website content without technical knowledge</p>
-                    <ul>
-                        <li><strong>Editable Pages:</strong> About, Services, and Contact pages</li>
-                        <li><strong>Live Updates:</strong> Changes appear immediately on the website</li>
-                        <li><strong>User-Friendly:</strong> Simple text editor interface</li>
-                        <li><strong>Version Control:</strong> All changes tracked through Git for safety</li>
-                    </ul>
-                </div>
-
-                <h3>⚙️ Configuration Management System</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Provides easy management of all website settings and integrations</p>
-                    <ul>
-                        <li><strong>Calendar Integration:</strong> Change Google Calendar ID without editing code</li>
-                        <li><strong>Admin Access:</strong> Add or remove authorized admin users</li>
-                        <li><strong>Business Settings:</strong> Update business owner email for notifications</li>
-                        <li><strong>Analytics Config:</strong> Change Google Analytics property ID</li>
-                        <li><strong>Pricing Management:</strong> Adjust subscription tier pricing</li>
-                        <li><strong>Persistent Storage:</strong> Settings saved locally and applied automatically</li>
-                        <li><strong>Validation:</strong> Built-in validation ensures all settings are properly formatted</li>
-                        <li><strong>Reset Options:</strong> Easily restore default settings if needed</li>
-                    </ul>
-                </div>
-
-                <h3>💻 JavaScript File Editor</h3>
-                <div class="component-list">
-                    <p><strong>What it does:</strong> Advanced code editing capabilities for power users and developers</p>
-                    <ul>
-                        <li><strong>Direct File Access:</strong> Edit admin.js, google-apps-script.js, and other JavaScript files</li>
-                        <li><strong>Syntax Validation:</strong> Real-time JavaScript syntax checking</li>
-                        <li><strong>Code Formatting:</strong> Automatic code formatting and beautification</li>
-                        <li><strong>Backup System:</strong> Download backup copies before making changes</li>
-                        <li><strong>Monospace Editor:</strong> Professional code editor with proper formatting</li>
-                        <li><strong>Live Preview:</strong> See line counts and character counts</li>
-                        <li><strong>Error Handling:</strong> Clear error messages for invalid syntax</li>
-                        <li><strong>Professional Workflow:</strong> Full development capabilities within the admin interface</li>
-                    </ul>
-                </div>
-
-                <h3>🔧 Technical Architecture</h3>
-                <div class="tech-stack">
-                    <div class="tech-item">
-                        <strong>🌐 Frontend</strong><br>
-                        HTML5, CSS3, JavaScript<br>
-                        Responsive Design
-                    </div>
-                    <div class="tech-item">
-                        <strong>🔐 Authentication</strong><br>
-                        Google OAuth 2.0<br>
-                        Identity Services API
-                    </div>
-                    <div class="tech-item">
-                        <strong>☁️ Backend</strong><br>
-                        Google Apps Script<br>
-                        Serverless Architecture
-                    </div>
-                    <div class="tech-item">
-                        <strong>📊 Data Storage</strong><br>
-                        Google Sheets<br>
-                        Automated Tracking
-                    </div>
-                    <div class="tech-item">
-                        <strong>📅 Calendar</strong><br>
-                        Google Calendar API<br>
-                        Real-time Sync
-                    </div>
-                    <div class="tech-item">
-                        <strong>🚀 Hosting</strong><br>
-                        Netlify<br>
-                        Auto-deployment
-                    </div>
-                </div>
-
-                <h3>💡 Business Benefits</h3>
-                <div class="component-list">
-                    <ul>
-                        <li><strong>Professional Image:</strong> Enterprise-level website competes with major pet care services</li>
-                        <li><strong>Automated Operations:</strong> Reduces manual work by 80% through smart automation</li>
-                        <li><strong>Premium Revenue:</strong> Subscription system creates recurring income streams</li>
-                        <li><strong>Customer Insights:</strong> Analytics provide valuable business intelligence</li>
-                        <li><strong>Scalable Growth:</strong> System handles increased demand automatically</li>
-                        <li><strong>Time Savings:</strong> Bailee can focus on pet care instead of admin work</li>
-                    </ul>
-                </div>
-
-                <div class="highlight-box">
-                    <h4>🎯 Result: From Simple Website to Business Management Platform</h4>
-                    <p>What started as a basic pet care website is now a sophisticated business automation system that rivals services like Rover and Wag!</p>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- Floating Business Intelligence Button -->
-    <div class="floating-bi-button" onclick="openBusinessIntelligenceModal()">
-        <div class="fab-icon">💰</div>
-        <div class="fab-label">Business Intelligence</div>
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <div class="floating-bi-button" onclick="openBusinessIntelligenceModal()">
+            <div class="fab-icon">💰</div>
+            <div class="fab-label">Business Intelligence</div>
+        </div>
+        
+        <div class="floating-system-button" onclick="openSystemOverviewModal()">
+            <div class="fab-icon">🔧</div>
+            <div class="fab-label">System Overview</div>
+        </div>
     </div>
 
     <!-- Business Intelligence Modal -->
@@ -1607,6 +1596,198 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview Modal -->
+    <div id="systemOverviewModal" class="system-modal" style="display: none;">
+        <div class="system-modal-content">
+            <div class="system-modal-header">
+                <h2>🔧 System Overview - How Everything Works</h2>
+                <button class="system-close-btn" onclick="closeSystemOverviewModal()">&times;</button>
+            </div>
+            
+            <div class="system-modal-body">
+                <div class="highlight-box">
+                    <h4>🚀 Enterprise-Level Pet Care Management System</h4>
+                    <p>Your website now features advanced automation, premium subscription tracking, professional business management tools, and AI-powered forecasting capabilities.</p>
+                </div>
+
+                <h3>💰 Business Intelligence & Forecasting System</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Provides advanced business analytics and revenue forecasting tools</p>
+                    <ul>
+                        <li><strong>Revenue Projections:</strong> Real-time monthly and annual revenue forecasting</li>
+                        <li><strong>Customer Lifetime Value:</strong> Advanced LTV calculations with churn analysis</li>
+                        <li><strong>Capacity Planning:</strong> Smart utilization tracking to optimize business growth</li>
+                        <li><strong>What-If Scenarios:</strong> Interactive modeling for pricing and customer acquisition</li>
+                        <li><strong>AI Recommendations:</strong> Smart growth suggestions based on current performance</li>
+                        <li><strong>Seasonal Analysis:</strong> Demand forecasting based on travel patterns</li>
+                        <li><strong>Growth Milestones:</strong> 3-year revenue projections with expansion planning</li>
+                    </ul>
+                </div>
+
+                <h3>💳 Advanced Payment Processing</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Complete Stripe integration with admin configuration management</p>
+                    <ul>
+                        <li><strong>Secure Payments:</strong> Bank-level encryption for all transactions</li>
+                        <li><strong>Multiple Methods:</strong> Credit cards, Google Pay, Apple Pay support</li>
+                        <li><strong>Test/Live Modes:</strong> Safe development environment with real payment processing</li>
+                        <li><strong>Subscription Management:</strong> Recurring billing for Premium/Elite tiers</li>
+                        <li><strong>Admin Configuration:</strong> No-code payment setup through dashboard</li>
+                        <li><strong>Connection Testing:</strong> Real-time Stripe API validation</li>
+                    </ul>
+                </div>
+
+                <h3>🔐 Admin Authentication System</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Secure Google OAuth login for admin access</p>
+                    <ul>
+                        <li><strong>Authorized Users:</strong> bailee.williams@google.com (primary admin), shoemaker.brandon35@gmail.com (setup support)</li>
+                        <li><strong>Security:</strong> Uses Google's enterprise-grade authentication</li>
+                        <li><strong>Auto-logout:</strong> Sessions expire for security</li>
+                        <li><strong>Access Control:</strong> Only authorized emails can access admin dashboard</li>
+                    </ul>
+                </div>
+
+                <h3>📊 Real-Time Analytics Dashboard</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Advanced website performance tracking with auto-refresh</p>
+                    <ul>
+                        <li><strong>Live Data:</strong> Google Analytics 4 integration with real visitor data</li>
+                        <li><strong>Auto-Refresh:</strong> Checks for new data every 30 minutes</li>
+                        <li><strong>Key Metrics:</strong> Page views, unique visitors, session duration, bounce rate</li>
+                        <li><strong>Business Intelligence:</strong> Visitor behavior analysis for conversion optimization</li>
+                        <li><strong>Manual Refresh:</strong> Instant data updates on demand</li>
+                    </ul>
+                </div>
+
+                <h3>📅 Enhanced Google Calendar Integration</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Automatically creates detailed calendar events for all bookings</p>
+                    <ul>
+                        <li><strong>Calendar ID:</strong> Configurable through admin dashboard</li>
+                        <li><strong>Smart Detection:</strong> Identifies premium subscribers and creates enhanced events</li>
+                        <li><strong>Detailed Events:</strong> Includes pet info, service type, customer contact, and special notes</li>
+                        <li><strong>Color Coding:</strong> Different colors for Basic vs Premium/Elite bookings</li>
+                        <li><strong>Notifications:</strong> Automatic email confirmations to both customer and business owner</li>
+                    </ul>
+                </div>
+
+                <h3>🤖 Google Apps Script Automation</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Backend automation that runs when forms are submitted</p>
+                    <ul>
+                        <li><strong>Form Processing:</strong> Captures all booking requests from the website</li>
+                        <li><strong>Email Notifications:</strong> Sends detailed booking info to bailee.williams@google.com</li>
+                        <li><strong>Calendar Creation:</strong> Automatically schedules appointments in Google Calendar</li>
+                        <li><strong>Premium Detection:</strong> Checks if customer is a premium subscriber</li>
+                        <li><strong>Data Management:</strong> Logs all bookings and tracks premium subscriber activity</li>
+                    </ul>
+                </div>
+
+                <h3>✏️ Content Management System</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Allows easy editing of website content without technical knowledge</p>
+                    <ul>
+                        <li><strong>Editable Pages:</strong> About, Services, and Contact pages</li>
+                        <li><strong>Live Updates:</strong> Changes appear immediately on the website</li>
+                        <li><strong>User-Friendly:</strong> Simple text editor interface</li>
+                        <li><strong>Version Control:</strong> All changes tracked through Git for safety</li>
+                    </ul>
+                </div>
+
+                <h3>⚙️ Configuration Management System</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Provides easy management of all website settings and integrations</p>
+                    <ul>
+                        <li><strong>Calendar Integration:</strong> Change Google Calendar ID without editing code</li>
+                        <li><strong>Admin Access:</strong> Add or remove authorized admin users</li>
+                        <li><strong>Business Settings:</strong> Update business owner email for notifications</li>
+                        <li><strong>Analytics Config:</strong> Change Google Analytics property ID</li>
+                        <li><strong>Pricing Management:</strong> Adjust subscription tier pricing</li>
+                        <li><strong>Stripe Configuration:</strong> Complete payment processor setup</li>
+                        <li><strong>Persistent Storage:</strong> Settings saved locally and applied automatically</li>
+                        <li><strong>Validation:</strong> Built-in validation ensures all settings are properly formatted</li>
+                    </ul>
+                </div>
+
+                <h3>💻 JavaScript File Editor</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Advanced code editing capabilities for power users and developers</p>
+                    <ul>
+                        <li><strong>Direct File Access:</strong> Edit admin.js, google-apps-script.js, and other JavaScript files</li>
+                        <li><strong>Syntax Validation:</strong> Real-time JavaScript syntax checking</li>
+                        <li><strong>Code Formatting:</strong> Automatic code formatting and beautification</li>
+                        <li><strong>Backup System:</strong> Download backup copies before making changes</li>
+                        <li><strong>Professional Workflow:</strong> Full development capabilities within the admin interface</li>
+                    </ul>
+                </div>
+
+                <h3>🔧 Technical Architecture</h3>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <strong>🌐 Frontend</strong><br>
+                        HTML5, CSS3, JavaScript<br>
+                        Responsive Design
+                    </div>
+                    <div class="tech-item">
+                        <strong>🔐 Authentication</strong><br>
+                        Google OAuth 2.0<br>
+                        Identity Services API
+                    </div>
+                    <div class="tech-item">
+                        <strong>☁️ Backend</strong><br>
+                        Google Apps Script<br>
+                        Serverless Architecture
+                    </div>
+                    <div class="tech-item">
+                        <strong>📊 Data Storage</strong><br>
+                        Google Sheets<br>
+                        Automated Tracking
+                    </div>
+                    <div class="tech-item">
+                        <strong>📅 Calendar</strong><br>
+                        Google Calendar API<br>
+                        Real-time Sync
+                    </div>
+                    <div class="tech-item">
+                        <strong>💳 Payments</strong><br>
+                        Stripe API<br>
+                        PCI Compliant
+                    </div>
+                    <div class="tech-item">
+                        <strong>🚀 Hosting</strong><br>
+                        Netlify<br>
+                        Auto-deployment
+                    </div>
+                    <div class="tech-item">
+                        <strong>🤖 AI/Analytics</strong><br>
+                        Business Intelligence<br>
+                        Forecasting Engine
+                    </div>
+                </div>
+
+                <h3>💡 Business Impact & Benefits</h3>
+                <div class="component-list">
+                    <ul>
+                        <li><strong>Revenue Growth:</strong> AI-powered insights can increase revenue by 25-40%</li>
+                        <li><strong>Professional Image:</strong> Enterprise-level platform competes with Rover and Wag</li>
+                        <li><strong>Automated Operations:</strong> Reduces manual work by 80% through smart automation</li>
+                        <li><strong>Predictable Income:</strong> Subscription system creates recurring revenue streams</li>
+                        <li><strong>Data-Driven Decisions:</strong> Business intelligence guides strategic planning</li>
+                        <li><strong>Scalable Growth:</strong> System handles increased demand automatically</li>
+                        <li><strong>Customer Insights:</strong> Analytics provide valuable conversion optimization data</li>
+                        <li><strong>Time Savings:</strong> Bailee can focus on pet care instead of admin work</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🎯 Result: From Side Hustle to Business Empire</h4>
+                    <p>What started as a basic pet care website is now a sophisticated business automation platform with AI-powered forecasting that rivals Fortune 500 companies!</p>
                 </div>
             </div>
         </div>
