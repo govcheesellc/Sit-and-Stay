@@ -10,7 +10,7 @@ const CONFIG = {
     GOOGLE_CLIENT_ID: '323272466004-n3vqvtmb0qumc92ngackscce8d4pjo5h.apps.googleusercontent.com',
     
     // Replace with your Google Analytics Property ID (e.g., 'G-XXXXXXXXXX')
-    ANALYTICS_PROPERTY_ID: 'GA4_MEASUREMENT_ID',
+    ANALYTICS_PROPERTY_ID: 'G-77T5LN70NP',
     
     // Authorized admin emails (multiple admins allowed)
     AUTHORIZED_ADMINS: [
