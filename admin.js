@@ -5,7 +5,7 @@
  */
 
 // Configuration - UPDATE THESE WITH ACTUAL VALUES
-const CONFIG = {
+let CONFIG = {
     // Replace with your Google Client ID from Google Cloud Console
     GOOGLE_CLIENT_ID: '323272466004-n3vqvtmb0qumc92ngackscce8d4pjo5h.apps.googleusercontent.com',
     
@@ -20,6 +20,16 @@ const CONFIG = {
     
     // Business owner email for notifications
     BUSINESS_OWNER_EMAIL: 'bailee.williams@google.com',
+    
+    // Google Calendar ID for booking automation
+    CALENDAR_ID: 'primary',
+    
+    // Subscription pricing tiers
+    PRICING: {
+        BASIC: 80,
+        PREMIUM: 120,
+        ELITE: 180
+    },
     
     // Page content mapping for editor
     PAGES: {
@@ -50,6 +60,9 @@ let selectedPage = '';
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin Dashboard Loading...');
     
+    // Load saved configuration from localStorage
+    loadSavedConfiguration();
+    
     // Check if user is already logged in (session storage)
     const savedUser = sessionStorage.getItem('adminUser');
     if (savedUser) {
@@ -65,6 +78,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Google Identity Services
     initializeGoogleAuth();
 });
+
+/**
+ * Load saved configuration from localStorage
+ */
+function loadSavedConfiguration() {
+    try {
+        const savedConfig = localStorage.getItem('sitandstay_config');
+        if (savedConfig) {
+            const parsedConfig = JSON.parse(savedConfig);
+            // Merge saved config with defaults, preserving structure
+            CONFIG = { ...CONFIG, ...parsedConfig };
+            console.log('Configuration loaded from localStorage');
+        }
+    } catch (error) {
+        console.error('Error loading saved configuration:', error);
+        // Continue with default configuration
+    }
+}
 
 /**
  * Initialize Google Authentication
@@ -542,9 +573,498 @@ window.addEventListener('error', function(error) {
     console.error('Admin Dashboard Error:', error);
 });
 
+/**
+ * Configuration Management Functions
+ */
+
+/**
+ * Load current configuration into the form
+ */
+function loadCurrentConfig() {
+    try {
+        // Load current settings from CONFIG object
+        document.getElementById('businessOwnerEmail').value = CONFIG.BUSINESS_OWNER_EMAIL || '';
+        document.getElementById('authorizedAdmins').value = CONFIG.AUTHORIZED_ADMINS ? CONFIG.AUTHORIZED_ADMINS.join('\n') : '';
+        document.getElementById('calendarId').value = CONFIG.CALENDAR_ID || 'primary';
+        document.getElementById('analyticsId').value = CONFIG.ANALYTICS_PROPERTY_ID || '';
+        
+        // Load pricing if available
+        document.getElementById('basicPrice').value = CONFIG.PRICING?.BASIC || 80;
+        document.getElementById('premiumPrice').value = CONFIG.PRICING?.PREMIUM || 120;
+        document.getElementById('elitePrice').value = CONFIG.PRICING?.ELITE || 180;
+        
+        showConfigSuccess('Current configuration loaded successfully!');
+        
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+        showConfigError('Failed to load current configuration.');
+    }
+}
+
+/**
+ * Save configuration changes
+ */
+function saveConfiguration() {
+    try {
+        // Get form values
+        const businessOwnerEmail = document.getElementById('businessOwnerEmail').value.trim();
+        const authorizedAdminsText = document.getElementById('authorizedAdmins').value.trim();
+        const calendarId = document.getElementById('calendarId').value.trim();
+        const analyticsId = document.getElementById('analyticsId').value.trim();
+        const basicPrice = parseInt(document.getElementById('basicPrice').value) || 80;
+        const premiumPrice = parseInt(document.getElementById('premiumPrice').value) || 120;
+        const elitePrice = parseInt(document.getElementById('elitePrice').value) || 180;
+        
+        // Validate inputs
+        if (!businessOwnerEmail || !isValidEmail(businessOwnerEmail)) {
+            showConfigError('Please enter a valid business owner email address.');
+            return;
+        }
+        
+        if (!calendarId) {
+            showConfigError('Please enter a calendar ID.');
+            return;
+        }
+        
+        if (analyticsId && !analyticsId.match(/^G-[A-Z0-9]+$/)) {
+            showConfigError('Analytics ID must be in format G-XXXXXXXXXX');
+            return;
+        }
+        
+        // Parse authorized admins
+        const authorizedEmails = authorizedAdminsText
+            .split('\n')
+            .map(email => email.trim())
+            .filter(email => email.length > 0);
+            
+        // Validate all admin emails
+        for (const email of authorizedEmails) {
+            if (!isValidEmail(email)) {
+                showConfigError(`Invalid email address: ${email}`);
+                return;
+            }
+        }
+        
+        if (authorizedEmails.length === 0) {
+            showConfigError('At least one authorized admin email is required.');
+            return;
+        }
+        
+        // Update CONFIG object
+        CONFIG.BUSINESS_OWNER_EMAIL = businessOwnerEmail;
+        CONFIG.AUTHORIZED_ADMINS = authorizedEmails;
+        CONFIG.CALENDAR_ID = calendarId;
+        CONFIG.ANALYTICS_PROPERTY_ID = analyticsId;
+        CONFIG.PRICING = {
+            BASIC: basicPrice,
+            PREMIUM: premiumPrice,
+            ELITE: elitePrice
+        };
+        
+        // Save to localStorage for persistence
+        localStorage.setItem('sitandstay_config', JSON.stringify(CONFIG));
+        
+        // Update analytics configuration if changed
+        if (analyticsId && window.gtag) {
+            gtag('config', analyticsId);
+        }
+        
+        showConfigSuccess('Configuration saved successfully! Changes will take effect immediately.');
+        
+        console.log('Configuration updated:', CONFIG);
+        
+    } catch (error) {
+        console.error('Error saving configuration:', error);
+        showConfigError('Failed to save configuration changes.');
+    }
+}
+
+/**
+ * Reset configuration to defaults
+ */
+function resetToDefaults() {
+    if (confirm('Are you sure you want to reset all settings to their default values? This cannot be undone.')) {
+        try {
+            // Reset form to default values
+            document.getElementById('businessOwnerEmail').value = 'bailee.williams@google.com';
+            document.getElementById('authorizedAdmins').value = 'bailee.williams@google.com\nshoemaker.brandon35@gmail.com';
+            document.getElementById('calendarId').value = 'primary';
+            document.getElementById('analyticsId').value = 'G-77T5LN70NP';
+            document.getElementById('basicPrice').value = '80';
+            document.getElementById('premiumPrice').value = '120';
+            document.getElementById('elitePrice').value = '180';
+            
+            showConfigSuccess('Configuration reset to default values. Click "Save Configuration" to apply changes.');
+            
+        } catch (error) {
+            console.error('Error resetting configuration:', error);
+            showConfigError('Failed to reset configuration.');
+        }
+    }
+}
+
+/**
+ * Validate email address format
+ * @param {string} email - Email to validate
+ * @returns {boolean} True if valid email
+ */
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+/**
+ * Show configuration success message
+ * @param {string} message - Success message
+ */
+function showConfigSuccess(message) {
+    const successElement = document.getElementById('configSuccess');
+    const successTextElement = document.getElementById('configSuccessText');
+    
+    successTextElement.textContent = message;
+    successElement.style.display = 'block';
+    
+    // Hide other messages
+    document.getElementById('configError').style.display = 'none';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        successElement.style.display = 'none';
+    }, 5000);
+}
+
+/**
+ * Show configuration error message
+ * @param {string} message - Error message
+ */
+function showConfigError(message) {
+    const errorElement = document.getElementById('configError');
+    const errorTextElement = document.getElementById('configErrorText');
+    
+    errorTextElement.textContent = message;
+    errorElement.style.display = 'block';
+    
+    // Hide other messages
+    document.getElementById('configSuccess').style.display = 'none';
+    
+    // Auto-hide after 8 seconds
+    setTimeout(() => {
+        errorElement.style.display = 'none';
+    }, 8000);
+}
+
+/**
+ * JavaScript File Editor Functions
+ */
+
+// Global variables for JS editor
+let currentJSContent = '';
+let selectedJSFile = '';
+
+// JavaScript file configuration
+const JS_FILES = {
+    'admin.js': {
+        title: 'Admin Dashboard JavaScript',
+        description: 'Controls the admin dashboard functionality'
+    },
+    'google-apps-script.js': {
+        title: 'Google Apps Script Code',
+        description: 'Booking automation and calendar integration'
+    },
+    'booking-handler.js': {
+        title: 'Booking Handler JavaScript',
+        description: 'Frontend booking form handling'
+    }
+};
+
+/**
+ * Load JavaScript file content for editing
+ */
+async function loadJavaScriptFile() {
+    const jsFileSelect = document.getElementById('jsFileSelect');
+    const jsContentEditor = document.getElementById('jsContentEditor');
+    const jsEditorLoading = document.getElementById('jsEditorLoading');
+    const jsContentTextarea = document.getElementById('jsContent');
+    const jsFileInfo = document.getElementById('jsFileInfo');
+    
+    selectedJSFile = jsFileSelect.value;
+    
+    if (!selectedJSFile) {
+        jsContentEditor.style.display = 'none';
+        return;
+    }
+    
+    try {
+        jsContentEditor.style.display = 'block';
+        jsEditorLoading.style.display = 'block';
+        jsContentTextarea.style.display = 'none';
+        
+        // Clear previous messages
+        hideJSMessages();
+        
+        // Update file info
+        const fileConfig = JS_FILES[selectedJSFile];
+        jsFileInfo.textContent = fileConfig ? fileConfig.description : 'JavaScript file';
+        
+        // Fetch JavaScript file content
+        const response = await fetch(selectedJSFile);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load ${selectedJSFile}: ${response.statusText}`);
+        }
+        
+        const content = await response.text();
+        currentJSContent = content;
+        
+        // Update textarea with proper formatting
+        jsContentTextarea.value = content;
+        
+        // Show editor
+        jsEditorLoading.style.display = 'none';
+        jsContentTextarea.style.display = 'block';
+        
+        // Show file info
+        showJSSaveSuccess(`Loaded ${selectedJSFile} successfully! ${content.split('\n').length} lines, ${content.length} characters.`);
+        
+    } catch (error) {
+        console.error('Load JavaScript Error:', error);
+        jsEditorLoading.style.display = 'none';
+        showJSSaveError(`Failed to load JavaScript file: ${error.message}`);
+    }
+}
+
+/**
+ * Save JavaScript file changes
+ */
+async function saveJavaScriptFile() {
+    const jsContentTextarea = document.getElementById('jsContent');
+    const newContent = jsContentTextarea.value;
+    
+    if (!selectedJSFile || !newContent.trim()) {
+        showJSSaveError('Please select a file and enter JavaScript code to save.');
+        return;
+    }
+    
+    try {
+        // Hide previous messages
+        hideJSMessages();
+        
+        // Basic JavaScript syntax validation
+        try {
+            // This is a simple validation - in production you might want more sophisticated checking
+            new Function(newContent);
+        } catch (syntaxError) {
+            showJSSaveError(`JavaScript Syntax Error: ${syntaxError.message}`);
+            return;
+        }
+        
+        // For static site, we'll provide download functionality and instructions
+        // In a production environment with a backend, you would save to the server here
+        
+        showJSSaveSuccess(`✅ JavaScript code validated successfully! 
+        
+📝 TO APPLY CHANGES:
+1. Copy the code from the editor above
+2. Open ${selectedJSFile} in your code editor
+3. Replace the content with the updated code
+4. Save the file
+5. Commit and push to Git to deploy
+
+💡 Or use the "Backup" button to download the updated file.`);
+        
+        // Update current content
+        currentJSContent = newContent;
+        
+        console.log('JavaScript code ready to save:', {
+            file: selectedJSFile,
+            lines: newContent.split('\n').length,
+            characters: newContent.length
+        });
+        
+    } catch (error) {
+        console.error('Save JavaScript Error:', error);
+        showJSSaveError(`Failed to process JavaScript: ${error.message}`);
+    }
+}
+
+/**
+ * Format JavaScript code (basic formatting)
+ */
+function formatJavaScript() {
+    const jsContentTextarea = document.getElementById('jsContent');
+    let content = jsContentTextarea.value;
+    
+    if (!content.trim()) {
+        showJSSaveError('No code to format. Please load a JavaScript file first.');
+        return;
+    }
+    
+    try {
+        // Basic formatting - add proper indentation and line breaks
+        // This is a simplified formatter - for production you might want a more sophisticated one
+        
+        let formatted = content
+            // Fix common spacing issues
+            .replace(/\s*{\s*/g, ' {\n    ')
+            .replace(/;\s*}/g, ';\n}')
+            .replace(/}\s*else\s*{/g, '} else {\n    ')
+            .replace(/,\s*/g, ', ')
+            // Fix line endings
+            .replace(/\n\s*\n\s*\n/g, '\n\n')
+            .trim();
+        
+        jsContentTextarea.value = formatted;
+        showJSSaveSuccess('Code formatted! Basic formatting applied.');
+        
+    } catch (error) {
+        showJSSaveError(`Formatting error: ${error.message}`);
+    }
+}
+
+/**
+ * Validate JavaScript syntax
+ */
+function validateJavaScript() {
+    const jsContentTextarea = document.getElementById('jsContent');
+    const validationResult = document.getElementById('jsValidationResult');
+    const validationText = document.getElementById('jsValidationText');
+    const content = jsContentTextarea.value;
+    
+    if (!content.trim()) {
+        showJSSaveError('No code to validate. Please load a JavaScript file first.');
+        return;
+    }
+    
+    try {
+        // Validate syntax
+        new Function(content);
+        
+        // Show success
+        validationResult.className = 'validation-result valid';
+        validationText.textContent = `✅ JavaScript syntax is valid! (${content.split('\n').length} lines, ${content.length} characters)`;
+        validationResult.style.display = 'block';
+        
+        // Hide after 5 seconds
+        setTimeout(() => {
+            validationResult.style.display = 'none';
+        }, 5000);
+        
+    } catch (error) {
+        // Show error
+        validationResult.className = 'validation-result invalid';
+        validationText.textContent = `❌ Syntax Error: ${error.message}`;
+        validationResult.style.display = 'block';
+        
+        // Hide after 10 seconds
+        setTimeout(() => {
+            validationResult.style.display = 'none';
+        }, 10000);
+    }
+}
+
+/**
+ * Download JavaScript file as backup
+ */
+function downloadJSBackup() {
+    const jsContentTextarea = document.getElementById('jsContent');
+    const content = jsContentTextarea.value;
+    
+    if (!selectedJSFile || !content.trim()) {
+        showJSSaveError('No content to download. Please load and edit a JavaScript file first.');
+        return;
+    }
+    
+    try {
+        // Create blob and download
+        const blob = new Blob([content], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        a.href = url;
+        a.download = `${selectedJSFile.replace('.js', '')}_backup_${new Date().toISOString().slice(0, 10)}.js`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showJSSaveSuccess(`✅ Backup downloaded: ${a.download}`);
+        
+    } catch (error) {
+        showJSSaveError(`Download failed: ${error.message}`);
+    }
+}
+
+/**
+ * Cancel JavaScript editing
+ */
+function cancelJSEdit() {
+    if (selectedJSFile && currentJSContent) {
+        document.getElementById('jsContent').value = currentJSContent;
+    }
+    hideJSMessages();
+}
+
+/**
+ * Show JavaScript save success message
+ */
+function showJSSaveSuccess(message) {
+    const successElement = document.getElementById('jsSaveSuccess');
+    const successTextElement = document.getElementById('jsSaveSuccessText');
+    
+    successTextElement.innerHTML = message.replace(/\n/g, '<br>');
+    successElement.style.display = 'block';
+    
+    // Hide other messages
+    document.getElementById('jsSaveError').style.display = 'none';
+    document.getElementById('jsValidationResult').style.display = 'none';
+    
+    // Auto-hide after 15 seconds for longer messages
+    setTimeout(() => {
+        successElement.style.display = 'none';
+    }, 15000);
+}
+
+/**
+ * Show JavaScript save error message
+ */
+function showJSSaveError(message) {
+    const errorElement = document.getElementById('jsSaveError');
+    const errorTextElement = document.getElementById('jsSaveErrorText');
+    
+    errorTextElement.textContent = message;
+    errorElement.style.display = 'block';
+    
+    // Hide other messages
+    document.getElementById('jsSaveSuccess').style.display = 'none';
+    document.getElementById('jsValidationResult').style.display = 'none';
+    
+    // Auto-hide after 10 seconds
+    setTimeout(() => {
+        errorElement.style.display = 'none';
+    }, 10000);
+}
+
+/**
+ * Hide all JavaScript messages
+ */
+function hideJSMessages() {
+    document.getElementById('jsSaveSuccess').style.display = 'none';
+    document.getElementById('jsSaveError').style.display = 'none';
+    document.getElementById('jsValidationResult').style.display = 'none';
+}
+
 // Make functions available globally for HTML onclick handlers
 window.handleCredentialResponse = handleCredentialResponse;
 window.signOut = signOut;
 window.loadPageContent = loadPageContent;
 window.savePageContent = savePageContent;
-window.cancelEdit = cancelEdit; 
+window.cancelEdit = cancelEdit;
+window.loadCurrentConfig = loadCurrentConfig;
+window.saveConfiguration = saveConfiguration;
+window.resetToDefaults = resetToDefaults;
+window.loadJavaScriptFile = loadJavaScriptFile;
+window.saveJavaScriptFile = saveJavaScriptFile;
+window.formatJavaScript = formatJavaScript;
+window.validateJavaScript = validateJavaScript;
+window.downloadJSBackup = downloadJSBackup;
+window.cancelJSEdit = cancelJSEdit; 

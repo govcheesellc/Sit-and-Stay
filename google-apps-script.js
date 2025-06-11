@@ -16,7 +16,7 @@ const BUSINESS_PHONE = '(817) 395-9982';
 
 // IMPORTANT: Bailee's Calendar ID for Sit and Stay Pet Care bookings
 // This will create events in bailee.williams@google.com's calendar
-const BAILEE_CALENDAR_ID = 'bailee.williams@google.com';
+const BAILEE_CALENDAR_ID = 'primary'; // Uses your default calendar
 
 // Premium subscriber configuration
 const PREMIUM_DISCOUNT_PERCENT = 10;

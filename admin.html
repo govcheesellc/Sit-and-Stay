@@ -301,6 +301,230 @@
             transform: translateY(-2px);
         }
 
+        /* Configuration Management Styles */
+        .config-section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4a90e2;
+        }
+
+        .config-section h3 {
+            color: #4a90e2;
+            margin: 0 0 15px 0;
+            font-size: 1.2em;
+        }
+
+        .config-group {
+            margin: 15px 0;
+        }
+
+        .config-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .config-group small {
+            display: block;
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .config-input, .config-textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .config-input:focus, .config-textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .config-input-small {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            background: white;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .config-input-small:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .pricing-tier {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e1e5e9;
+            text-align: center;
+        }
+
+        .price-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .currency, .period {
+            font-weight: 600;
+            color: #4a90e2;
+            font-size: 14px;
+        }
+
+        .config-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-load {
+            background: #17a2b8;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-load:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        /* JavaScript Editor Styles */
+        .js-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .js-editor-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .file-info {
+            font-size: 0.85em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .js-code-editor {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+            font-size: 13px !important;
+            line-height: 1.4;
+            min-height: 400px;
+            background: #f8f9fa;
+            border: 2px solid #4a90e2;
+            tab-size: 4;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+        }
+
+        .js-code-editor:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .btn-format, .btn-validate, .btn-backup {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-format:hover, .btn-validate:hover, .btn-backup:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-backup {
+            background: #6c757d;
+        }
+
+        .btn-backup:hover {
+            background: #5a6268;
+        }
+
+        .validation-result {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .validation-result.valid {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-result.invalid {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .js-warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #ffeaa7;
+            font-size: 14px;
+        }
+
+        .js-warning strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
         @media (max-width: 768px) {
             .dashboard-section {
                 grid-template-columns: 1fr;
@@ -427,6 +651,139 @@
                 </div>
             </div>
 
+            <!-- JavaScript File Editor -->
+            <div class="dashboard-card">
+                <h2>💻 JavaScript File Editor</h2>
+                <p><strong>⚠️ Advanced Feature:</strong> Edit JavaScript files directly. Changes take effect immediately. Use with caution!</p>
+                
+                <div class="js-editor">
+                    <div class="page-selector">
+                        <label for="jsFileSelect"><strong>Select JavaScript File to Edit:</strong></label>
+                        <select id="jsFileSelect" onchange="loadJavaScriptFile()">
+                            <option value="">-- Choose a JavaScript file --</option>
+                            <option value="admin.js">Admin Dashboard (admin.js)</option>
+                            <option value="google-apps-script.js">Google Apps Script (google-apps-script.js)</option>
+                            <option value="booking-handler.js">Booking Handler (if exists)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="jsContentEditor" class="content-editor" style="display: none;">
+                        <div class="js-editor-header">
+                            <label for="jsContent"><strong>JavaScript Code:</strong></label>
+                            <div class="js-editor-tools">
+                                <button onclick="formatJavaScript()" class="btn-format" title="Format Code">🎨 Format</button>
+                                <button onclick="validateJavaScript()" class="btn-validate" title="Validate Syntax">✅ Validate</button>
+                                <span id="jsFileInfo" class="file-info"></span>
+                            </div>
+                        </div>
+                        
+                        <div id="jsEditorLoading" class="loading" style="display: none;">
+                            <p>Loading JavaScript file...</p>
+                        </div>
+                        
+                        <textarea id="jsContent" class="js-code-editor" placeholder="Select a JavaScript file to edit..."></textarea>
+                        
+                        <div class="editor-buttons">
+                            <button onclick="saveJavaScriptFile()" class="btn-save">💾 Save JavaScript</button>
+                            <button onclick="cancelJSEdit()" class="btn-cancel">❌ Cancel</button>
+                            <button onclick="downloadJSBackup()" class="btn-backup" title="Download backup copy">💾 Backup</button>
+                        </div>
+                        
+                        <div id="jsSaveSuccess" class="success" style="display: none;">
+                            <strong>Success:</strong> <span id="jsSaveSuccessText">JavaScript file updated successfully!</span>
+                        </div>
+                        <div id="jsSaveError" class="error" style="display: none;">
+                            <strong>JavaScript Error:</strong> <span id="jsSaveErrorText"></span>
+                        </div>
+                        <div id="jsValidationResult" class="validation-result" style="display: none;">
+                            <span id="jsValidationText"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Management -->
+            <div class="dashboard-card">
+                <h2>⚙️ Configuration Management</h2>
+                <p>Manage key website settings and integrations. Changes take effect immediately.</p>
+                
+                <div class="config-section">
+                    <h3>🔐 Authentication & Access</h3>
+                    <div class="config-group">
+                        <label for="businessOwnerEmail"><strong>Business Owner Email:</strong></label>
+                        <input type="email" id="businessOwnerEmail" placeholder="bailee.williams@google.com" class="config-input">
+                        <small>Email address that receives booking notifications and system alerts</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="authorizedAdmins"><strong>Authorized Admins:</strong></label>
+                        <textarea id="authorizedAdmins" placeholder="bailee.williams@google.com&#10;shoemaker.brandon35@gmail.com" class="config-textarea" rows="3"></textarea>
+                        <small>One email per line. These users can access the admin dashboard.</small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>📅 Google Calendar Integration</h3>
+                    <div class="config-group">
+                        <label for="calendarId"><strong>Calendar ID:</strong></label>
+                        <input type="text" id="calendarId" placeholder="primary" class="config-input">
+                        <small>Google Calendar ID where bookings are created. Use 'primary' for your main calendar or the specific calendar email.</small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>📊 Analytics Configuration</h3>
+                    <div class="config-group">
+                        <label for="analyticsId"><strong>Google Analytics Property ID:</strong></label>
+                        <input type="text" id="analyticsId" placeholder="G-77T5LN70NP" class="config-input">
+                        <small>Your Google Analytics 4 measurement ID (format: G-XXXXXXXXXX)</small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>💰 Subscription Pricing</h3>
+                    <div class="pricing-grid">
+                        <div class="pricing-tier">
+                            <label for="basicPrice"><strong>Basic Tier:</strong></label>
+                            <div class="price-input-group">
+                                <span class="currency">$</span>
+                                <input type="number" id="basicPrice" placeholder="80" class="config-input-small">
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-tier">
+                            <label for="premiumPrice"><strong>Premium Tier:</strong></label>
+                            <div class="price-input-group">
+                                <span class="currency">$</span>
+                                <input type="number" id="premiumPrice" placeholder="120" class="config-input-small">
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-tier">
+                            <label for="elitePrice"><strong>Elite Tier:</strong></label>
+                            <div class="price-input-group">
+                                <span class="currency">$</span>
+                                <input type="number" id="elitePrice" placeholder="180" class="config-input-small">
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-buttons">
+                    <button onclick="loadCurrentConfig()" class="btn-load">🔄 Load Current Settings</button>
+                    <button onclick="saveConfiguration()" class="btn-save">💾 Save Configuration</button>
+                    <button onclick="resetToDefaults()" class="btn-cancel">🔄 Reset to Defaults</button>
+                </div>
+
+                <div id="configSuccess" class="success" style="display: none;">
+                    <strong>Success:</strong> <span id="configSuccessText">Configuration updated successfully!</span>
+                </div>
+                <div id="configError" class="error" style="display: none;">
+                    <strong>Configuration Error:</strong> <span id="configErrorText"></span>
+                </div>
+            </div>
+
             <!-- System Overview -->
             <div class="dashboard-card system-overview">
                 <h2>🔧 System Overview - How Everything Works</h2>
@@ -463,11 +820,11 @@
                 <div class="component-list">
                     <p><strong>What it does:</strong> Automatically creates detailed calendar events for all bookings</p>
                     <ul>
-                        <li><strong>Calendar ID:</strong> sitandstaypetcare@gmail.com (Bailee's business calendar)</li>
+                        <li><strong>Calendar ID:</strong> Configurable through admin dashboard (currently set to 'primary')</li>
                         <li><strong>Smart Detection:</strong> Identifies premium subscribers and creates enhanced events</li>
                         <li><strong>Detailed Events:</strong> Includes pet info, service type, customer contact, and special notes</li>
                         <li><strong>Color Coding:</strong> Different colors for Basic vs Premium/Elite bookings</li>
-                        <li><strong>Notifications:</strong> Automatic email confirmations to both customer and Bailee</li>
+                        <li><strong>Notifications:</strong> Automatic email confirmations to both customer and business owner</li>
                     </ul>
                 </div>
 
@@ -502,6 +859,36 @@
                         <li><strong>Live Updates:</strong> Changes appear immediately on the website</li>
                         <li><strong>User-Friendly:</strong> Simple text editor interface</li>
                         <li><strong>Version Control:</strong> All changes tracked through Git for safety</li>
+                    </ul>
+                </div>
+
+                <h3>⚙️ Configuration Management System</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Provides easy management of all website settings and integrations</p>
+                    <ul>
+                        <li><strong>Calendar Integration:</strong> Change Google Calendar ID without editing code</li>
+                        <li><strong>Admin Access:</strong> Add or remove authorized admin users</li>
+                        <li><strong>Business Settings:</strong> Update business owner email for notifications</li>
+                        <li><strong>Analytics Config:</strong> Change Google Analytics property ID</li>
+                        <li><strong>Pricing Management:</strong> Adjust subscription tier pricing</li>
+                        <li><strong>Persistent Storage:</strong> Settings saved locally and applied automatically</li>
+                        <li><strong>Validation:</strong> Built-in validation ensures all settings are properly formatted</li>
+                        <li><strong>Reset Options:</strong> Easily restore default settings if needed</li>
+                    </ul>
+                </div>
+
+                <h3>💻 JavaScript File Editor</h3>
+                <div class="component-list">
+                    <p><strong>What it does:</strong> Advanced code editing capabilities for power users and developers</p>
+                    <ul>
+                        <li><strong>Direct File Access:</strong> Edit admin.js, google-apps-script.js, and other JavaScript files</li>
+                        <li><strong>Syntax Validation:</strong> Real-time JavaScript syntax checking</li>
+                        <li><strong>Code Formatting:</strong> Automatic code formatting and beautification</li>
+                        <li><strong>Backup System:</strong> Download backup copies before making changes</li>
+                        <li><strong>Monospace Editor:</strong> Professional code editor with proper formatting</li>
+                        <li><strong>Live Preview:</strong> See line counts and character counts</li>
+                        <li><strong>Error Handling:</strong> Clear error messages for invalid syntax</li>
+                        <li><strong>Professional Workflow:</strong> Full development capabilities within the admin interface</li>
                     </ul>
                 </div>
 
