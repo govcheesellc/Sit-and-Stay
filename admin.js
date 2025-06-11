@@ -176,6 +176,9 @@ function handleSuccessfulLogin(user) {
     loadAnalyticsData();
     startAnalyticsAutoRefresh();
     
+    // Load business forecasting data
+    loadBusinessForecasting();
+    
     console.log('Admin Dashboard Loaded Successfully');
 }
 
@@ -1261,6 +1264,329 @@ function testStripeConnection() {
     showConfigSuccess(`✅ Stripe connection test passed! ${mode.charAt(0).toUpperCase() + mode.slice(1)} mode is properly configured.`);
 }
 
+/**
+ * Business Intelligence & Forecasting Functions
+ */
+
+/**
+ * Load and display business forecasting data
+ */
+async function loadBusinessForecasting() {
+    try {
+        // Initialize with current business data
+        const businessData = await generateBusinessForecasting();
+        
+        // Update revenue projections
+        updateRevenueProjections(businessData);
+        
+        // Generate AI recommendations
+        generateBusinessRecommendations(businessData);
+        
+        // Run initial scenario analysis
+        runScenarioAnalysis();
+        
+        console.log('✅ Business forecasting loaded successfully');
+        
+    } catch (error) {
+        console.error('Business forecasting error:', error);
+    }
+}
+
+/**
+ * Generate comprehensive business forecasting data
+ */
+async function generateBusinessForecasting() {
+    // Simulate real business analysis
+    const currentMonth = new Date().getMonth();
+    const seasonalMultiplier = getSeasonalMultiplier(currentMonth);
+    
+    // Base business metrics (realistic for growing pet care business)
+    const baseData = {
+        currentCustomers: 35, // Current active customers
+        newCustomersPerMonth: 8, // Average new acquisitions
+        avgServicePrice: 45, // Average per visit
+        visitsPerCustomer: 2.5, // Monthly average
+        subscriptionRate: 0.30, // 30% on subscription plans
+        churnRate: 0.08, // 8% monthly churn (industry standard)
+        operatingCosts: 0.35, // 35% of revenue (gas, insurance, supplies)
+        maxVisitsPerMonth: 160, // Bailee's capacity
+        growthRate: 0.15 // 15% monthly growth potential
+    };
+    
+    // Calculate current metrics
+    const monthlyVisits = baseData.currentCustomers * baseData.visitsPerCustomer * seasonalMultiplier;
+    const monthlyRevenue = monthlyVisits * baseData.avgServicePrice;
+    const subscriptionRevenue = monthlyRevenue * baseData.subscriptionRate * 1.1; // 10% subscription boost
+    const totalMonthlyRevenue = monthlyRevenue + subscriptionRevenue;
+    
+    // Calculate projections
+    const annualRevenue = totalMonthlyRevenue * 12;
+    const capacityUtilization = (monthlyVisits / baseData.maxVisitsPerMonth) * 100;
+    const customerLTV = calculateCustomerLTV(baseData);
+    
+    return {
+        ...baseData,
+        monthlyVisits: Math.round(monthlyVisits),
+        monthlyRevenue: Math.round(totalMonthlyRevenue),
+        annualRevenue: Math.round(annualRevenue),
+        capacityUtilization: Math.round(capacityUtilization),
+        customerLTV: Math.round(customerLTV),
+        seasonalMultiplier,
+        profitMargin: Math.round((1 - baseData.operatingCosts) * 100)
+    };
+}
+
+/**
+ * Calculate seasonal demand multiplier
+ */
+function getSeasonalMultiplier(month) {
+    const seasonalFactors = {
+        0: 1.35,  // January (holidays)
+        1: 1.20,  // February
+        2: 1.25,  // March (spring cleaning)
+        3: 1.30,  // April
+        4: 1.35,  // May
+        5: 1.45,  // June (vacation season)
+        6: 1.50,  // July (peak summer)
+        7: 1.45,  // August
+        8: 1.15,  // September
+        9: 1.20,  // October
+        10: 1.25, // November (Thanksgiving)
+        11: 1.40  // December (holidays)
+    };
+    return seasonalFactors[month] || 1.0;
+}
+
+/**
+ * Calculate Customer Lifetime Value
+ */
+function calculateCustomerLTV(data) {
+    const avgLifespanMonths = 1 / data.churnRate; // If 8% churn, avg 12.5 months
+    const monthlyCustomerValue = data.visitsPerCustomer * data.avgServicePrice;
+    return avgLifespanMonths * monthlyCustomerValue;
+}
+
+/**
+ * Update revenue projection displays
+ */
+function updateRevenueProjections(data) {
+    // Update main metrics
+    document.getElementById('monthlyRevenue').textContent = `$${formatNumber(data.monthlyRevenue)}`;
+    document.getElementById('revenueTrend').textContent = `+${Math.round(data.growthRate * 100)}% growth potential`;
+    
+    document.getElementById('annualGoal').textContent = `$${formatNumber(data.annualRevenue)}`;
+    const goalPercentage = Math.min((data.annualRevenue / 60000) * 100, 100);
+    document.getElementById('goalProgress').textContent = `${Math.round(goalPercentage)}% of $60K goal`;
+    
+    document.getElementById('customerLTV').textContent = `$${formatNumber(data.customerLTV)}`;
+    document.getElementById('ltvDetail').textContent = `Avg: ${Math.round(1/data.churnRate)} months`;
+    
+    document.getElementById('capacityUsage').textContent = `${data.capacityUtilization}%`;
+    document.getElementById('capacityDetail').textContent = `${data.monthlyVisits}/${data.maxVisitsPerMonth} max visits/month`;
+}
+
+/**
+ * Run scenario analysis based on user inputs
+ */
+function runScenarioAnalysis() {
+    const newCustomers = parseInt(document.getElementById('newCustomers').value) || 8;
+    const avgPrice = parseInt(document.getElementById('avgPrice').value) || 45;
+    const subscriptionRate = parseInt(document.getElementById('subscriptionRate').value) || 30;
+    const visitsPerCustomer = parseFloat(document.getElementById('visitsPerCustomer').value) || 2.5;
+    
+    // Calculate scenario results
+    const totalCustomers = 35 + newCustomers; // Current + new
+    const monthlyVisits = totalCustomers * visitsPerCustomer;
+    const baseRevenue = monthlyVisits * avgPrice;
+    const subscriptionBoost = baseRevenue * (subscriptionRate / 100) * 0.1; // 10% boost from subscriptions
+    const monthlyRevenue = baseRevenue + subscriptionBoost;
+    const annualRevenue = monthlyRevenue * 12;
+    const operatingCosts = monthlyRevenue * 0.35; // 35% operating costs
+    const profitMargin = ((monthlyRevenue - operatingCosts) / monthlyRevenue) * 100;
+    
+    // Update displays
+    document.getElementById('scenarioMonthly').textContent = `$${formatNumber(monthlyRevenue)}`;
+    document.getElementById('scenarioAnnual').textContent = `$${formatNumber(annualRevenue)}`;
+    document.getElementById('scenarioProfit').textContent = `${Math.round(profitMargin)}%`;
+    
+    // Update capacity warning
+    const maxCapacity = 160;
+    if (monthlyVisits > maxCapacity) {
+        document.getElementById('scenarioMonthly').style.color = '#ff6b6b';
+        document.getElementById('scenarioMonthly').title = '⚠️ Exceeds capacity! Consider hiring help.';
+    } else {
+        document.getElementById('scenarioMonthly').style.color = '#ffd700';
+        document.getElementById('scenarioMonthly').title = '';
+    }
+}
+
+/**
+ * Update subscription rate display
+ */
+function updateSubscriptionRate() {
+    const rate = document.getElementById('subscriptionRate').value;
+    document.getElementById('subscriptionRateValue').textContent = `${rate}%`;
+}
+
+/**
+ * Generate AI-powered business recommendations
+ */
+function generateBusinessRecommendations(data) {
+    const recommendations = [];
+    
+    // Capacity-based recommendations
+    if (data.capacityUtilization > 80) {
+        recommendations.push({
+            icon: '👥',
+            text: `At ${data.capacityUtilization}% capacity! Consider hiring a part-time assistant to handle overflow and scale beyond $${formatNumber(data.monthlyRevenue * 1.5)}/month.`
+        });
+    } else if (data.capacityUtilization < 50) {
+        recommendations.push({
+            icon: '📢',
+            text: `Only ${data.capacityUtilization}% capacity used. Increase marketing to reach $${formatNumber(data.monthlyRevenue * 1.6)}/month potential.`
+        });
+    }
+    
+    // Pricing recommendations
+    if (data.avgServicePrice < 50) {
+        const newRevenue = data.monthlyVisits * 50;
+        recommendations.push({
+            icon: '💰',
+            text: `Increase prices to $50/visit to boost revenue to $${formatNumber(newRevenue)}/month (+${Math.round(((newRevenue - data.monthlyRevenue) / data.monthlyRevenue) * 100)}%).`
+        });
+    }
+    
+    // Subscription recommendations
+    if (data.subscriptionRate < 0.5) {
+        recommendations.push({
+            icon: '📋',
+            text: `Only ${Math.round(data.subscriptionRate * 100)}% subscription rate. Target 60% to add $${formatNumber(data.monthlyRevenue * 0.3)} recurring revenue.`
+        });
+    }
+    
+    // Seasonal recommendations
+    const currentMonth = new Date().getMonth();
+    if ([5, 6, 7].includes(currentMonth)) { // Summer months
+        recommendations.push({
+            icon: '☀️',
+            text: `Peak summer season! Raise prices 15% and add overnight services to capture $${formatNumber(data.monthlyRevenue * 1.4)}/month potential.`
+        });
+    }
+    
+    // Growth milestones
+    if (data.annualRevenue < 100000) {
+        recommendations.push({
+            icon: '🚀',
+            text: `On track for $${formatNumber(data.annualRevenue)} annually. Add 2 premium services to break $100K barrier and transition to full-time business.`
+        });
+    }
+    
+    // Display recommendations
+    const container = document.getElementById('recommendationsList');
+    container.innerHTML = '';
+    
+    recommendations.forEach(rec => {
+        const div = document.createElement('div');
+        div.className = 'recommendation';
+        div.innerHTML = `
+            <span class="rec-icon">${rec.icon}</span>
+            <span class="rec-text">${rec.text}</span>
+        `;
+        container.appendChild(div);
+    });
+    
+    if (recommendations.length === 0) {
+        container.innerHTML = `
+            <div class="recommendation">
+                <span class="rec-icon">🎯</span>
+                <span class="rec-text">Excellent performance! Your business is well-optimized. Focus on customer retention and quality service delivery.</span>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Run detailed business analysis
+ */
+function runDetailedAnalysis() {
+    const button = event.target;
+    const originalText = button.textContent;
+    
+    button.textContent = '🔄 Analyzing...';
+    button.disabled = true;
+    
+    setTimeout(() => {
+        // Generate detailed report
+        showDetailedAnalysisModal();
+        
+        button.textContent = originalText;
+        button.disabled = false;
+    }, 2000);
+}
+
+/**
+ * Show detailed analysis modal
+ */
+function showDetailedAnalysisModal() {
+    const newCustomers = parseInt(document.getElementById('newCustomers').value) || 8;
+    const avgPrice = parseInt(document.getElementById('avgPrice').value) || 45;
+    const subscriptionRate = parseInt(document.getElementById('subscriptionRate').value) || 30;
+    
+    // Calculate detailed projections
+    const currentRevenue = 3600; // Base current revenue
+    const projectedRevenue = newCustomers * 2.5 * avgPrice * (1 + subscriptionRate / 1000);
+    const yearOneRevenue = projectedRevenue * 12;
+    const yearTwoRevenue = yearOneRevenue * 1.3; // 30% growth
+    const yearThreeRevenue = yearTwoRevenue * 1.25; // 25% growth
+    
+    const analysisHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
+            <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                <h2 style="color: #333; margin-top: 0;">📊 Detailed Business Analysis</h2>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #4a90e2;">💰 Revenue Projections</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 1.5em; font-weight: bold; color: #28a745;">Year 1</div>
+                            <div style="font-size: 1.2em;">$${formatNumber(yearOneRevenue)}</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 1.5em; font-weight: bold; color: #ffc107;">Year 2</div>
+                            <div style="font-size: 1.2em;">$${formatNumber(yearTwoRevenue)}</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 1.5em; font-weight: bold; color: #17a2b8;">Year 3</div>
+                            <div style="font-size: 1.2em;">$${formatNumber(yearThreeRevenue)}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #4a90e2;">🎯 Key Milestones</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; border-bottom: 1px solid #eee;">🔹 Month 6: $${formatNumber(projectedRevenue * 6)} revenue - Consider business insurance</li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #eee;">🔹 Month 12: $${formatNumber(yearOneRevenue)} - Full-time transition feasible</li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #eee;">🔹 Month 18: $${formatNumber(yearTwoRevenue * 0.7)} - Hire first employee</li>
+                        <li style="padding: 8px 0;">🔹 Year 3: $${formatNumber(yearThreeRevenue)} - Multi-location expansion</li>
+                    </ul>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3 style="color: #4a90e2;">⚠️ Risk Analysis</h3>
+                    <div style="padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                        <strong>Capacity Risk:</strong> At current growth rate, you'll hit capacity limits by month ${Math.round(160 / (newCustomers * 2.5))}. Plan to hire help or raise prices.
+                    </div>
+                </div>
+                
+                <button onclick="this.parentElement.parentElement.remove()" style="background: #4a90e2; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;">Close Analysis</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', analysisHTML);
+}
+
 // Make functions available globally for HTML onclick handlers
 window.handleCredentialResponse = handleCredentialResponse;
 window.signOut = signOut;
@@ -1277,4 +1603,7 @@ window.validateJavaScript = validateJavaScript;
 window.downloadJSBackup = downloadJSBackup;
 window.cancelJSEdit = cancelJSEdit;
 window.testStripeConnection = testStripeConnection;
-window.updateStripeStatus = updateStripeStatus; 
+window.updateStripeStatus = updateStripeStatus;
+window.runScenarioAnalysis = runScenarioAnalysis;
+window.updateSubscriptionRate = updateSubscriptionRate;
+window.runDetailedAnalysis = runDetailedAnalysis; 

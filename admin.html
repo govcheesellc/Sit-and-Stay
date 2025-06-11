@@ -579,6 +579,264 @@
             transform: translateY(-1px);
         }
 
+        /* Business Forecasting Styles */
+        .forecasting-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .forecasting-card h2 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .forecasting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .forecast-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .forecast-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .forecast-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .forecast-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #fff;
+        }
+
+        .forecast-trend {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .forecast-progress {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .forecast-detail {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .scenario-planning {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .scenario-planning h4 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .scenario-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-input {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .scenario-input label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .scenario-input input {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .scenario-input input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .scenario-input input[type="range"] {
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .scenario-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .scenario-btn {
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #333;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .scenario-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .growth-recommendations {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .growth-recommendations h4 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .recommendation {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .rec-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .rec-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .loading-rec {
+            animation: pulse 2s infinite;
+        }
+
+        .seasonal-analysis {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .seasonal-analysis h4 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .seasonal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .season-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .season-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .season-card h5 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        .season-metric {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 10px 0;
+        }
+
+        .season-detail {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
         @media (max-width: 768px) {
             .dashboard-section {
                 grid-template-columns: 1fr;
@@ -640,6 +898,117 @@
                     <p id="userEmail"></p>
                 </div>
                 <button onclick="signOut()" class="logout-btn">Sign Out</button>
+            </div>
+
+            <!-- Business Forecasting Dashboard -->
+            <div class="dashboard-card forecasting-card">
+                <h2>💰 Business Intelligence & Forecasting</h2>
+                
+                <!-- Revenue Projections -->
+                <div id="forecastingSection">
+                    <div class="forecasting-grid">
+                        <div class="forecast-card">
+                            <h4>📈 Monthly Revenue Projection</h4>
+                            <div class="forecast-value" id="monthlyRevenue">$0</div>
+                            <div class="forecast-trend" id="revenueTrend">+0% vs last month</div>
+                        </div>
+                        
+                        <div class="forecast-card">
+                            <h4>🎯 Annual Revenue Goal</h4>
+                            <div class="forecast-value" id="annualGoal">$60,000</div>
+                            <div class="forecast-progress" id="goalProgress">0% achieved</div>
+                        </div>
+                        
+                        <div class="forecast-card">
+                            <h4>👥 Customer Lifetime Value</h4>
+                            <div class="forecast-value" id="customerLTV">$0</div>
+                            <div class="forecast-detail" id="ltvDetail">Avg: 0 months</div>
+                        </div>
+                        
+                        <div class="forecast-card">
+                            <h4>⚡ Capacity Utilization</h4>
+                            <div class="forecast-value" id="capacityUsage">0%</div>
+                            <div class="forecast-detail" id="capacityDetail">0/160 max visits/month</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Scenario Planning -->
+                    <div class="scenario-planning">
+                        <h4>🔮 What-If Business Scenarios</h4>
+                        <div class="scenario-controls">
+                            <div class="scenario-input">
+                                <label>New Customers/Month:</label>
+                                <input type="number" id="newCustomers" value="8" min="0" max="50" onchange="runScenarioAnalysis()">
+                            </div>
+                            <div class="scenario-input">
+                                <label>Average Service Price:</label>
+                                <input type="number" id="avgPrice" value="45" min="20" max="100" onchange="runScenarioAnalysis()">
+                            </div>
+                            <div class="scenario-input">
+                                <label>Subscription Rate:</label>
+                                <input type="range" id="subscriptionRate" value="30" min="0" max="100" onchange="updateSubscriptionRate(); runScenarioAnalysis()">
+                                <span id="subscriptionRateValue">30%</span>
+                            </div>
+                            <div class="scenario-input">
+                                <label>Avg Visits per Customer:</label>
+                                <input type="number" id="visitsPerCustomer" value="2.5" min="1" max="8" step="0.5" onchange="runScenarioAnalysis()">
+                            </div>
+                        </div>
+                        <div class="scenario-results" id="scenarioResults">
+                            <div class="result-item">
+                                <span class="result-label">Monthly Revenue:</span>
+                                <span class="result-value" id="scenarioMonthly">$0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Annual Revenue:</span>
+                                <span class="result-value" id="scenarioAnnual">$0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Profit Margin:</span>
+                                <span class="result-value" id="scenarioProfit">0%</span>
+                            </div>
+                        </div>
+                        <button onclick="runDetailedAnalysis()" class="scenario-btn">📊 Detailed Analysis</button>
+                    </div>
+                    
+                    <!-- Growth Recommendations -->
+                    <div class="growth-recommendations" id="growthRecommendations">
+                        <h4>💡 AI-Powered Business Recommendations</h4>
+                        <div id="recommendationsList">
+                            <div class="recommendation loading-rec">
+                                <span class="rec-icon">🤖</span>
+                                <span class="rec-text">Analyzing business opportunities...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Seasonal Analysis -->
+                    <div class="seasonal-analysis">
+                        <h4>🌟 Seasonal Business Patterns</h4>
+                        <div class="seasonal-grid">
+                            <div class="season-card">
+                                <h5>🌸 Spring (Mar-May)</h5>
+                                <div class="season-metric">+25% demand</div>
+                                <div class="season-detail">Spring cleaning, travel season</div>
+                            </div>
+                            <div class="season-card">
+                                <h5>☀️ Summer (Jun-Aug)</h5>
+                                <div class="season-metric">+45% demand</div>
+                                <div class="season-detail">Vacation season peak</div>
+                            </div>
+                            <div class="season-card">
+                                <h5>🍂 Fall (Sep-Nov)</h5>
+                                <div class="season-metric">+15% demand</div>
+                                <div class="season-detail">Back to school, business travel</div>
+                            </div>
+                            <div class="season-card">
+                                <h5>❄️ Winter (Dec-Feb)</h5>
+                                <div class="season-metric">+35% demand</div>
+                                <div class="season-detail">Holiday travel surge</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Analytics Dashboard -->
