@@ -14,9 +14,9 @@ const BUSINESS_OWNER_EMAIL = 'bailee.williams@google.com'; // Bailee's actual em
 const BUSINESS_NAME = 'Sit and Stay Pet Care';
 const BUSINESS_PHONE = '(817) 395-9982';
 
-// IMPORTANT: Replace with Bailee's actual Calendar ID
-// To find Calendar ID: Go to Google Calendar > Settings > Calendar Settings > Calendar ID
-const BAILEE_CALENDAR_ID = 'primary'; // UPDATE TO: 'bailee.williams@google.com' or actual Calendar ID
+// IMPORTANT: Bailee's Calendar ID for Sit and Stay Pet Care bookings
+// This will create events in bailee.williams@google.com's calendar
+const BAILEE_CALENDAR_ID = 'bailee.williams@google.com';
 
 // Premium subscriber configuration
 const PREMIUM_DISCOUNT_PERCENT = 10;
