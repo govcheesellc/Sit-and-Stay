@@ -896,6 +896,28 @@
             box-shadow: 0 12px 35px rgba(40, 167, 69, 0.6);
         }
 
+        /* Floating Configuration Button */
+        .floating-config-button {
+            background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(253, 126, 20, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .floating-config-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(253, 126, 20, 0.6);
+        }
+
         .fab-icon {
             font-size: 24px;
             animation: pulse 2s infinite;
@@ -1093,6 +1115,107 @@
             -webkit-backdrop-filter: blur(10px);
         }
 
+        /* Configuration Modal */
+        .config-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .config-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .config-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+            border-radius: 20px 20px 0 0;
+            z-index: 1;
+        }
+
+        .config-modal-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 1.8em;
+        }
+
+        .config-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .config-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .config-modal-body {
+            padding: 30px;
+        }
+
+        .config-modal .config-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .config-modal .config-input,
+        .config-modal .config-textarea,
+        .config-modal .config-input-small {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .config-modal .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .config-modal .pricing-tier {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
         @media (max-width: 768px) {
             .dashboard-section {
                 grid-template-columns: 1fr;
@@ -1183,6 +1306,30 @@
 
             .system-modal .tech-stack {
                 grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            /* Mobile Configuration Modal */
+            .config-modal-content {
+                width: 98%;
+                max-height: 95vh;
+                margin: 10px;
+            }
+
+            .config-modal-header {
+                padding: 20px 15px;
+            }
+
+            .config-modal-header h2 {
+                font-size: 1.4em;
+            }
+
+            .config-modal-body {
+                padding: 20px 15px;
+            }
+
+            .config-modal .pricing-grid {
+                grid-template-columns: 1fr;
                 gap: 10px;
             }
         }
@@ -1346,125 +1493,6 @@
                 </div>
             </div>
 
-            <!-- Configuration Management -->
-            <div class="dashboard-card">
-                <h2>⚙️ Configuration Management</h2>
-                <p>Manage key website settings and integrations. Changes take effect immediately.</p>
-                
-                <div class="config-section">
-                    <h3>🔐 Authentication & Access</h3>
-                    <div class="config-group">
-                        <label for="businessOwnerEmail"><strong>Business Owner Email:</strong></label>
-                        <input type="email" id="businessOwnerEmail" placeholder="bailee.williams@google.com" class="config-input">
-                        <small>Email address that receives booking notifications and system alerts</small>
-                    </div>
-                    
-                    <div class="config-group">
-                        <label for="authorizedAdmins"><strong>Authorized Admins:</strong></label>
-                        <textarea id="authorizedAdmins" placeholder="bailee.williams@google.com&#10;shoemaker.brandon35@gmail.com" class="config-textarea" rows="3"></textarea>
-                        <small>One email per line. These users can access the admin dashboard.</small>
-                    </div>
-                </div>
-
-                <div class="config-section">
-                    <h3>📅 Google Calendar Integration</h3>
-                    <div class="config-group">
-                        <label for="calendarId"><strong>Calendar ID:</strong></label>
-                        <input type="text" id="calendarId" placeholder="primary" class="config-input">
-                        <small>Google Calendar ID where bookings are created. Use 'primary' for your main calendar or the specific calendar email.</small>
-                    </div>
-                </div>
-
-                <div class="config-section">
-                    <h3>📊 Analytics Configuration</h3>
-                    <div class="config-group">
-                        <label for="analyticsId"><strong>Google Analytics Property ID:</strong></label>
-                        <input type="text" id="analyticsId" placeholder="G-77T5LN70NP" class="config-input">
-                        <small>Your Google Analytics 4 measurement ID (format: G-XXXXXXXXXX)</small>
-                    </div>
-                </div>
-
-                <div class="config-section">
-                    <h3>💰 Subscription Pricing</h3>
-                    <div class="pricing-grid">
-                        <div class="pricing-tier">
-                            <label for="basicPrice"><strong>Basic Tier:</strong></label>
-                            <div class="price-input-group">
-                                <span class="currency">$</span>
-                                <input type="number" id="basicPrice" placeholder="80" class="config-input-small">
-                                <span class="period">/month</span>
-                            </div>
-                        </div>
-                        <div class="pricing-tier">
-                            <label for="premiumPrice"><strong>Premium Tier:</strong></label>
-                            <div class="price-input-group">
-                                <span class="currency">$</span>
-                                <input type="number" id="premiumPrice" placeholder="120" class="config-input-small">
-                                <span class="period">/month</span>
-                            </div>
-                        </div>
-                        <div class="pricing-tier">
-                            <label for="elitePrice"><strong>Elite Tier:</strong></label>
-                            <div class="price-input-group">
-                                <span class="currency">$</span>
-                                <input type="number" id="elitePrice" placeholder="180" class="config-input-small">
-                                <span class="period">/month</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="config-section">
-                    <h3>💳 Payment Processing (Stripe)</h3>
-                    <div class="config-group">
-                        <label for="stripeMode"><strong>Payment Mode:</strong></label>
-                        <select id="stripeMode" class="config-input">
-                            <option value="test">Test Mode (Development)</option>
-                            <option value="live">Live Mode (Production)</option>
-                        </select>
-                        <small>Test mode uses fake payments for development. Live mode processes real payments.</small>
-                    </div>
-                    
-                    <div class="config-group">
-                        <label for="stripePublishableKey"><strong>Stripe Publishable Key:</strong></label>
-                        <input type="text" id="stripePublishableKey" placeholder="pk_test_..." class="config-input">
-                        <small>Public key from your Stripe dashboard (starts with pk_test_ or pk_live_)</small>
-                    </div>
-                    
-                    <div class="config-group">
-                        <label for="stripeSecretKey"><strong>Stripe Secret Key:</strong></label>
-                        <input type="password" id="stripeSecretKey" placeholder="sk_test_..." class="config-input">
-                        <small>Secret key from your Stripe dashboard (starts with sk_test_ or sk_live_)</small>
-                    </div>
-                    
-                    <div class="config-group">
-                        <label for="stripeWebhookSecret"><strong>Webhook Secret:</strong></label>
-                        <input type="password" id="stripeWebhookSecret" placeholder="whsec_..." class="config-input">
-                        <small>Webhook signing secret for secure payment notifications</small>
-                    </div>
-                    
-                    <div class="stripe-status">
-                        <div id="stripeConnectionStatus" class="connection-status">
-                            <span class="status-indicator" id="stripeStatusIcon">⚠️</span>
-                            <span id="stripeStatusText">Not configured</span>
-                        </div>
-                        <button onclick="testStripeConnection()" class="btn-test">🔍 Test Connection</button>
-                    </div>
-                </div>
-
-                <div class="config-buttons">
-                    <button onclick="loadCurrentConfig()" class="btn-load">🔄 Load Current Settings</button>
-                    <button onclick="saveConfiguration()" class="btn-save">💾 Save Configuration</button>
-                    <button onclick="resetToDefaults()" class="btn-cancel">🔄 Reset to Defaults</button>
-                </div>
-
-                <div id="configSuccess" class="success" style="display: none;">
-                    <strong>Success:</strong> <span id="configSuccessText">Configuration updated successfully!</span>
-                </div>
-                <div id="configError" class="error" style="display: none;">
-                    <strong>Configuration Error:</strong> <span id="configErrorText"></span>
-                </div>
-            </div>
 
 
         </div>
@@ -1480,6 +1508,11 @@
         <div class="floating-system-button" onclick="openSystemOverviewModal()">
             <div class="fab-icon">🔧</div>
             <div class="fab-label">System Overview</div>
+        </div>
+        
+        <div class="floating-config-button" onclick="openConfigurationModal()">
+            <div class="fab-icon">⚙️</div>
+            <div class="fab-label">Configuration</div>
         </div>
     </div>
 
@@ -1800,6 +1833,134 @@
                 <div class="highlight-box">
                     <h4>🎯 Result: From Simple Website to Business Management Platform</h4>
                     <p>What started as a basic pet care website is now a sophisticated business automation system that rivals services like Rover and Wag!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Management Modal -->
+    <div id="configurationModal" class="config-modal" style="display: none;">
+        <div class="config-modal-content">
+            <div class="config-modal-header">
+                <h2>⚙️ Configuration Management</h2>
+                <button class="config-close-btn" onclick="closeConfigurationModal()">&times;</button>
+            </div>
+            
+            <div class="config-modal-body">
+                <p>Manage key website settings and integrations. Changes take effect immediately.</p>
+                
+                <div class="config-section">
+                    <h3>🔐 Authentication & Access</h3>
+                    <div class="config-group">
+                        <label for="businessOwnerEmail"><strong>Business Owner Email:</strong></label>
+                        <input type="email" id="businessOwnerEmail" placeholder="bailee.williams@google.com" class="config-input">
+                        <small>Email address that receives booking notifications and system alerts</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="authorizedAdmins"><strong>Authorized Admins:</strong></label>
+                        <textarea id="authorizedAdmins" placeholder="bailee.williams@google.com&#10;shoemaker.brandon35@gmail.com" class="config-textarea" rows="3"></textarea>
+                        <small>One email per line. These users can access the admin dashboard.</small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>📅 Google Calendar Integration</h3>
+                    <div class="config-group">
+                        <label for="calendarId"><strong>Calendar ID:</strong></label>
+                        <input type="text" id="calendarId" placeholder="primary" class="config-input">
+                        <small>Google Calendar ID where bookings are created. Use 'primary' for your main calendar or the specific calendar email.</small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>📊 Analytics Configuration</h3>
+                    <div class="config-group">
+                        <label for="analyticsId"><strong>Google Analytics Property ID:</strong></label>
+                        <input type="text" id="analyticsId" placeholder="G-77T5LN70NP" class="config-input">
+                        <small>Your Google Analytics 4 measurement ID (format: G-XXXXXXXXXX)</small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>💰 Subscription Pricing</h3>
+                    <div class="pricing-grid">
+                        <div class="pricing-tier">
+                            <label for="basicPrice"><strong>Basic Tier:</strong></label>
+                            <div class="price-input-group">
+                                <span class="currency">$</span>
+                                <input type="number" id="basicPrice" placeholder="80" class="config-input-small">
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-tier">
+                            <label for="premiumPrice"><strong>Premium Tier:</strong></label>
+                            <div class="price-input-group">
+                                <span class="currency">$</span>
+                                <input type="number" id="premiumPrice" placeholder="120" class="config-input-small">
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-tier">
+                            <label for="elitePrice"><strong>Elite Tier:</strong></label>
+                            <div class="price-input-group">
+                                <span class="currency">$</span>
+                                <input type="number" id="elitePrice" placeholder="180" class="config-input-small">
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>💳 Payment Processing (Stripe)</h3>
+                    <div class="config-group">
+                        <label for="stripeMode"><strong>Payment Mode:</strong></label>
+                        <select id="stripeMode" class="config-input">
+                            <option value="test">Test Mode (Development)</option>
+                            <option value="live">Live Mode (Production)</option>
+                        </select>
+                        <small>Test mode uses fake payments for development. Live mode processes real payments.</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="stripePublishableKey"><strong>Stripe Publishable Key:</strong></label>
+                        <input type="text" id="stripePublishableKey" placeholder="pk_test_..." class="config-input">
+                        <small>Public key from your Stripe dashboard (starts with pk_test_ or pk_live_)</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="stripeSecretKey"><strong>Stripe Secret Key:</strong></label>
+                        <input type="password" id="stripeSecretKey" placeholder="sk_test_..." class="config-input">
+                        <small>Secret key from your Stripe dashboard (starts with sk_test_ or sk_live_)</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="stripeWebhookSecret"><strong>Webhook Secret:</strong></label>
+                        <input type="password" id="stripeWebhookSecret" placeholder="whsec_..." class="config-input">
+                        <small>Webhook signing secret for secure payment notifications</small>
+                    </div>
+                    
+                    <div class="stripe-status">
+                        <div id="stripeConnectionStatus" class="connection-status">
+                            <span class="status-indicator" id="stripeStatusIcon">⚠️</span>
+                            <span id="stripeStatusText">Not configured</span>
+                        </div>
+                        <button onclick="testStripeConnection()" class="btn-test">🔍 Test Connection</button>
+                    </div>
+                </div>
+
+                <div class="config-buttons">
+                    <button onclick="loadCurrentConfig()" class="btn-load">🔄 Load Current Settings</button>
+                    <button onclick="saveConfiguration()" class="btn-save">💾 Save Configuration</button>
+                    <button onclick="resetToDefaults()" class="btn-cancel">🔄 Reset to Defaults</button>
+                </div>
+
+                <div id="configSuccess" class="success" style="display: none;">
+                    <strong>Success:</strong> <span id="configSuccessText">Configuration updated successfully!</span>
+                </div>
+                <div id="configError" class="error" style="display: none;">
+                    <strong>Configuration Error:</strong> <span id="configErrorText"></span>
                 </div>
             </div>
         </div>

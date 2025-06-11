@@ -1661,10 +1661,51 @@ function handleSystemModalEscape(event) {
     }
 }
 
+/**
+ * Open Configuration Modal
+ */
+function openConfigurationModal() {
+    const modal = document.getElementById('configurationModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Load current configuration when opening
+        loadCurrentConfig();
+        
+        // Add escape key listener
+        document.addEventListener('keydown', handleConfigModalEscape);
+    }
+}
+
+/**
+ * Close Configuration Modal
+ */
+function closeConfigurationModal() {
+    const modal = document.getElementById('configurationModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        
+        // Remove escape key listener
+        document.removeEventListener('keydown', handleConfigModalEscape);
+    }
+}
+
+/**
+ * Handle Escape key to close config modal
+ */
+function handleConfigModalEscape(event) {
+    if (event.key === 'Escape') {
+        closeConfigurationModal();
+    }
+}
+
 // Close modals when clicking outside content
 document.addEventListener('click', function(event) {
     const biModal = document.getElementById('businessIntelligenceModal');
     const systemModal = document.getElementById('systemOverviewModal');
+    const configModal = document.getElementById('configurationModal');
     
     if (biModal && event.target === biModal) {
         closeBusinessIntelligenceModal();
@@ -1672,6 +1713,10 @@ document.addEventListener('click', function(event) {
     
     if (systemModal && event.target === systemModal) {
         closeSystemOverviewModal();
+    }
+    
+    if (configModal && event.target === configModal) {
+        closeConfigurationModal();
     }
 });
 
@@ -1698,4 +1743,6 @@ window.runDetailedAnalysis = runDetailedAnalysis;
 window.openBusinessIntelligenceModal = openBusinessIntelligenceModal;
 window.closeBusinessIntelligenceModal = closeBusinessIntelligenceModal;
 window.openSystemOverviewModal = openSystemOverviewModal;
-window.closeSystemOverviewModal = closeSystemOverviewModal; 
+window.closeSystemOverviewModal = closeSystemOverviewModal;
+window.openConfigurationModal = openConfigurationModal;
+window.closeConfigurationModal = closeConfigurationModal; 
