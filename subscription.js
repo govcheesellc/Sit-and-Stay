@@ -4,16 +4,25 @@
  * Created: June 11, 2025
  */
 
-// Configuration - UPDATE THESE WITH ACTUAL VALUES
+// Load configuration from admin system or use defaults
+const ADMIN_CONFIG = JSON.parse(localStorage.getItem('sitandstay_config')) || {};
+
+// Configuration - dynamically loaded from admin system
 const SUBSCRIPTION_CONFIG = {
     // Replace with your Google Client ID from Google Cloud Console
-    GOOGLE_CLIENT_ID: '323272466004-n3vqvtmb0qumc92ngackscce8d4pjo5h.apps.googleusercontent.com',
+    GOOGLE_CLIENT_ID: ADMIN_CONFIG.GOOGLE_CLIENT_ID || '323272466004-n3vqvtmb0qumc92ngackscce8d4pjo5h.apps.googleusercontent.com',
     
     // Google Sheet ID for Premium Subscribers tracking
     PREMIUM_SUBSCRIBERS_SHEET_ID: 'YOUR_GOOGLE_SHEET_ID',
     
     // Business owner email
-    BUSINESS_OWNER_EMAIL: 'bailee.williams@google.com',
+    BUSINESS_OWNER_EMAIL: ADMIN_CONFIG.BUSINESS_OWNER_EMAIL || 'bailee.williams@google.com',
+    
+    // Stripe configuration
+    STRIPE: {
+        PUBLISHABLE_KEY: ADMIN_CONFIG.STRIPE?.PUBLISHABLE_KEY || 'pk_test_51234567890abcdef',
+        MODE: ADMIN_CONFIG.STRIPE?.MODE || 'test'
+    },
     
     // Subscription tier pricing
     TIERS: {
@@ -45,6 +54,13 @@ let currentSubscriptionUser = null;
 let isSubscriptionAuthenticated = false;
 let userSubscriptionTier = null;
 
+// Stripe variables
+let stripe = null;
+let elements = null;
+let paymentElement = null;
+let selectedPaymentMethod = null;
+let currentSubscriptionPlan = null;
+
 /**
  * Initialize subscription page when DOM loads
  */
@@ -68,6 +84,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load user's current subscription status
     loadUserSubscriptionStatus();
+    
+    // Initialize Stripe
+    initializeStripe();
 });
 
 /**
@@ -265,11 +284,29 @@ function signOut() {
 function subscribeBasic() {
     const tier = SUBSCRIPTION_CONFIG.TIERS.basic;
     
-    // Redirect to contact with subscription details
-    const message = `Hi! I'm interested in subscribing to the ${tier.name} (${tier.visits} visits per month for $${tier.price}/month). Please contact me to set up my subscription.`;
-    const contactUrl = `contact.html?subject=Basic Subscription&message=${encodeURIComponent(message)}`;
+    // Set current subscription plan for payment processing
+    currentSubscriptionPlan = {
+        tier: 'basic',
+        name: tier.name,
+        price: tier.price,
+        visits: tier.visits,
+        features: tier.features
+    };
     
-    window.location.href = contactUrl;
+    // Scroll to payment section
+    const paymentSection = document.querySelector('.payment-section');
+    if (paymentSection) {
+        paymentSection.scrollIntoView({ behavior: 'smooth' });
+        
+        // Highlight the section briefly
+        paymentSection.style.background = '#e3f2fd';
+        setTimeout(() => {
+            paymentSection.style.background = '#f8f9fa';
+        }, 2000);
+    }
+    
+    // Show plan selection message
+    showPaymentMessage(`Selected ${tier.name} - $${tier.price}/month. Choose your payment method below.`, 'success');
 }
 
 /**
@@ -283,11 +320,31 @@ function subscribePremium() {
     
     const tier = SUBSCRIPTION_CONFIG.TIERS.premium;
     
-    // Add user email to the message for premium tracking
-    const message = `Hi! I'm interested in subscribing to the ${tier.name} (${tier.visits} visits per month for $${tier.price}/month with ${tier.discount}% discount). My Google account is: ${currentSubscriptionUser.email}. Please contact me to set up my premium subscription.`;
-    const contactUrl = `contact.html?subject=Premium Subscription&message=${encodeURIComponent(message)}`;
+    // Set current subscription plan for payment processing
+    currentSubscriptionPlan = {
+        tier: 'premium',
+        name: tier.name,
+        price: tier.price,
+        visits: tier.visits,
+        discount: tier.discount,
+        features: tier.features,
+        userEmail: currentSubscriptionUser.email
+    };
     
-    window.location.href = contactUrl;
+    // Scroll to payment section
+    const paymentSection = document.querySelector('.payment-section');
+    if (paymentSection) {
+        paymentSection.scrollIntoView({ behavior: 'smooth' });
+        
+        // Highlight the section briefly
+        paymentSection.style.background = '#fff3cd';
+        setTimeout(() => {
+            paymentSection.style.background = '#f8f9fa';
+        }, 2000);
+    }
+    
+    // Show plan selection message
+    showPaymentMessage(`Selected ${tier.name} - $${tier.price}/month with ${tier.discount}% discount. Choose your payment method below.`, 'success');
 }
 
 /**
@@ -296,18 +353,31 @@ function subscribePremium() {
 function subscribeElite() {
     const tier = SUBSCRIPTION_CONFIG.TIERS.elite;
     
-    // Elite tier doesn't require login but benefits from it
-    let message = `Hi! I'm interested in subscribing to the ${tier.name} (${tier.visits} visits + 1 overnight stay for $${tier.price}/month with ${tier.discount}% discount).`;
+    // Set current subscription plan for payment processing
+    currentSubscriptionPlan = {
+        tier: 'elite',
+        name: tier.name,
+        price: tier.price,
+        visits: tier.visits,
+        discount: tier.discount,
+        features: tier.features,
+        userEmail: isSubscriptionAuthenticated ? currentSubscriptionUser.email : null
+    };
     
-    if (isSubscriptionAuthenticated) {
-        message += ` My Google account is: ${currentSubscriptionUser.email}.`;
+    // Scroll to payment section
+    const paymentSection = document.querySelector('.payment-section');
+    if (paymentSection) {
+        paymentSection.scrollIntoView({ behavior: 'smooth' });
+        
+        // Highlight the section briefly
+        paymentSection.style.background = '#d4edda';
+        setTimeout(() => {
+            paymentSection.style.background = '#f8f9fa';
+        }, 2000);
     }
     
-    message += ` Please contact me to set up my elite subscription.`;
-    
-    const contactUrl = `contact.html?subject=Elite Subscription&message=${encodeURIComponent(message)}`;
-    
-    window.location.href = contactUrl;
+    // Show plan selection message
+    showPaymentMessage(`Selected ${tier.name} - $${tier.price}/month with ${tier.discount}% discount and unlimited visits. Choose your payment method below.`, 'success');
 }
 
 /**
@@ -389,6 +459,207 @@ window.addEventListener('error', function(error) {
     console.error('Subscription Page Error:', error);
 });
 
+/**
+ * Stripe Payment Integration Functions
+ */
+
+/**
+ * Initialize Stripe with publishable key
+ */
+function initializeStripe() {
+    try {
+        if (!SUBSCRIPTION_CONFIG.STRIPE.PUBLISHABLE_KEY || SUBSCRIPTION_CONFIG.STRIPE.PUBLISHABLE_KEY.includes('51234567890abcdef')) {
+            console.warn('Stripe not configured properly. Using demo mode.');
+            return;
+        }
+        
+        stripe = Stripe(SUBSCRIPTION_CONFIG.STRIPE.PUBLISHABLE_KEY);
+        console.log(`Stripe initialized in ${SUBSCRIPTION_CONFIG.STRIPE.MODE} mode`);
+        
+    } catch (error) {
+        console.error('Stripe initialization error:', error);
+        showPaymentMessage('Payment system initialization failed. Please refresh the page.', 'error');
+    }
+}
+
+/**
+ * Handle payment method selection
+ * @param {string} method - Payment method selected
+ */
+function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    
+    // Remove previous selections
+    document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    // Add selection to clicked method
+    event.target.closest('.payment-method').classList.add('selected');
+    
+    // Show appropriate payment interface
+    if (method === 'stripe' || method === 'googlepay' || method === 'applepay') {
+        showStripePaymentSection();
+    } else if (method === 'manual') {
+        showManualPaymentInfo();
+    }
+}
+
+/**
+ * Show Stripe payment section
+ */
+function showStripePaymentSection() {
+    const paymentSection = document.getElementById('stripePaymentSection');
+    
+    if (!stripe) {
+        showPaymentMessage('Payment system not configured. Please contact support.', 'error');
+        return;
+    }
+    
+    paymentSection.style.display = 'block';
+    
+    // Show different options based on selected method
+    if (selectedPaymentMethod === 'googlepay') {
+        setupGooglePay();
+    } else if (selectedPaymentMethod === 'applepay') {
+        setupApplePay();
+    } else {
+        setupCardPayment();
+    }
+}
+
+/**
+ * Setup card payment with Stripe Elements
+ */
+function setupCardPayment() {
+    const submitButton = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    
+    buttonText.textContent = 'Enter Payment Details';
+    submitButton.disabled = false;
+    
+    // Create Stripe Elements
+    const appearance = {
+        theme: 'stripe',
+        variables: {
+            colorPrimary: '#4a90e2',
+            colorBackground: '#ffffff',
+            colorText: '#262626',
+            colorDanger: '#df1b41',
+            fontFamily: 'Poppins, system-ui, sans-serif',
+            spacingUnit: '4px',
+            borderRadius: '8px'
+        }
+    };
+    
+    elements = stripe.elements({ appearance });
+    
+    // Create payment element
+    paymentElement = elements.create('payment');
+    paymentElement.mount('#payment-element');
+    
+    // Handle real-time validation errors from the payment element
+    paymentElement.on('change', ({ complete, error }) => {
+        if (error) {
+            showPaymentMessage(error.message, 'error');
+        } else if (complete) {
+            showPaymentMessage('Payment method looks good!', 'success');
+            buttonText.textContent = 'Subscribe Now';
+            submitButton.disabled = false;
+        } else {
+            hidePaymentMessage();
+            buttonText.textContent = 'Enter Payment Details';
+            submitButton.disabled = true;
+        }
+    });
+    
+    // Handle form submission
+    submitButton.onclick = handleCardPaymentSubmission;
+}
+
+/**
+ * Setup Google Pay
+ */
+function setupGooglePay() {
+    const submitButton = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    
+    buttonText.textContent = 'Pay with Google Pay';
+    submitButton.disabled = false;
+    
+    // Hide payment element for Google Pay
+    document.getElementById('payment-element').style.display = 'none';
+    
+    submitButton.onclick = handleGooglePaySubmission;
+}
+
+/**
+ * Setup Apple Pay
+ */
+function setupApplePay() {
+    const submitButton = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    
+    // Check if Apple Pay is available
+    if (!stripe.paymentRequest) {
+        showPaymentMessage('Apple Pay is not available on this device/browser.', 'error');
+        return;
+    }
+    
+    buttonText.textContent = 'Pay with Apple Pay';
+    submitButton.disabled = false;
+    
+    // Hide payment element for Apple Pay
+    document.getElementById('payment-element').style.display = 'none';
+    
+    submitButton.onclick = handleApplePaySubmission;
+}
+
+/**
+ * Show manual payment information
+ */
+function showManualPaymentInfo() {
+    const paymentSection = document.getElementById('stripePaymentSection');
+    paymentSection.innerHTML = `
+        <h3>💸 Manual Payment Setup</h3>
+        <p>Contact us to set up manual payment via Venmo or cash:</p>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h4>Contact Information:</h4>
+            <p><strong>Email:</strong> ${SUBSCRIPTION_CONFIG.BUSINESS_OWNER_EMAIL}</p>
+            <p><strong>Phone:</strong> Available upon request</p>
+            <p><strong>Venmo:</strong> Contact for Venmo details</p>
+        </div>
+        <button class="subscribe-btn" onclick="window.location.href='contact.html'">
+            Contact Us
+        </button>
+    `;
+    paymentSection.style.display = 'block';
+}
+
+/**
+ * Show payment message
+ * @param {string} message - Message to display
+ * @param {string} type - Message type (success, error)
+ */
+function showPaymentMessage(message, type) {
+    const messageEl = document.getElementById('payment-message');
+    if (messageEl) {
+        messageEl.textContent = message;
+        messageEl.className = `payment-message ${type}`;
+        messageEl.style.display = 'block';
+    }
+}
+
+/**
+ * Hide payment message
+ */
+function hidePaymentMessage() {
+    const messageEl = document.getElementById('payment-message');
+    if (messageEl) {
+        messageEl.style.display = 'none';
+    }
+}
+
 // Make functions available globally for HTML onclick handlers
 window.handleCredentialResponse = handleCredentialResponse;
 window.signOut = signOut;
@@ -396,4 +667,5 @@ window.subscribeBasic = subscribeBasic;
 window.subscribePremium = subscribePremium;
 window.subscribeElite = subscribeElite;
 window.getUserSubscriptionBenefits = getUserSubscriptionBenefits;
-window.prefillBookingForm = prefillBookingForm; 
+window.prefillBookingForm = prefillBookingForm;
+window.selectPaymentMethod = selectPaymentMethod; 

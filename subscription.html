@@ -22,6 +22,9 @@
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
+    <!-- Stripe JavaScript SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
     <style>
         /* Subscription-specific styles */
         .subscription-container {
@@ -186,18 +189,47 @@
             position: relative;
         }
 
-        .payment-method.coming-soon::after {
-            content: "COMING SOON";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            color: #6c757d;
-            font-size: 0.8em;
+        .payment-method.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.2);
+        }
+
+        .stripe-payment-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #28a745;
+        }
+
+        .stripe-payment-section h3 {
+            color: #28a745;
+            margin-top: 0;
+        }
+
+        #payment-element {
+            margin: 20px 0;
+        }
+
+        .payment-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .payment-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .payment-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .subscribe-btn {
@@ -415,42 +447,58 @@
             <p>Choose your preferred payment method for subscription services</p>
             
             <div class="payment-methods">
-                <div class="payment-method available">
-                    <h4>💸 Venmo</h4>
-                    <p>Quick and easy payment via Venmo</p>
-                    <p><strong>Available Now</strong></p>
+                <div class="payment-method available" onclick="selectPaymentMethod('stripe')">
+                    <h4>💳 Credit & Debit Cards</h4>
+                    <p>Visa, MasterCard, American Express, Discover</p>
+                    <p><strong>✅ Secure Online Processing</strong></p>
+                    <small style="color: #28a745;">🔒 Powered by Stripe</small>
                 </div>
                 
-                <div class="payment-method available">
-                    <h4>💵 Cash/Check</h4>
-                    <p>Traditional payment methods accepted</p>
-                    <p><strong>Available Now</strong></p>
-                </div>
-                
-                <div class="payment-method coming-soon">
+                <div class="payment-method available" onclick="selectPaymentMethod('googlepay')">
                     <h4>📱 Google Pay</h4>
-                    <p>Seamless integration with Google services</p>
-                    <p>Automatic billing and receipts</p>
+                    <p>Pay with your saved Google payment methods</p>
+                    <p><strong>✅ Quick & Secure</strong></p>
+                    <small style="color: #28a745;">🔒 One-click payments</small>
                 </div>
                 
-                <div class="payment-method coming-soon">
-                    <h4>💳 Credit Cards</h4>
-                    <p>Visa, MasterCard, American Express</p>
-                    <p>Secure online processing</p>
+                <div class="payment-method available" onclick="selectPaymentMethod('applepay')">
+                    <h4>🍎 Apple Pay</h4>
+                    <p>Pay with Touch ID or Face ID</p>
+                    <p><strong>✅ Available on Apple devices</strong></p>
+                    <small style="color: #28a745;">🔒 Biometric security</small>
+                </div>
+                
+                <div class="payment-method available" onclick="selectPaymentMethod('manual')">
+                    <h4>💸 Venmo / Cash</h4>
+                    <p>Traditional payment methods</p>
+                    <p><strong>✅ Contact for manual setup</strong></p>
+                    <small style="color: #666;">Manual processing required</small>
                 </div>
             </div>
             
-            <div style="margin-top: 20px; padding: 20px; background: #e3f2fd; border-radius: 10px; border-left: 4px solid #2196f3;">
-                <h4 style="color: #1976d2; margin-top: 0;">🚀 Google Pay Integration Coming Soon!</h4>
-                <p style="margin-bottom: 0;">
-                    We're working on integrating Google Pay for seamless subscription management. This will include:
+            <!-- Payment Processing Section -->
+            <div id="stripePaymentSection" class="stripe-payment-section" style="display: none;">
+                <h3>🔒 Secure Payment Processing</h3>
+                <div id="payment-element">
+                    <!-- Stripe Elements will create form elements here -->
+                </div>
+                <button id="submit-payment" class="subscribe-btn" style="margin-top: 20px;" disabled>
+                    <span id="button-text">Processing...</span>
+                </button>
+                <div id="payment-message" class="payment-message"></div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 20px; background: #d4edda; border-radius: 10px; border-left: 4px solid #28a745;">
+                <h4 style="color: #155724; margin-top: 0;">🔒 Secure Payment Processing</h4>
+                <p style="margin-bottom: 0; color: #155724;">
+                    All payments are processed securely through Stripe, the same payment processor used by millions of businesses worldwide. Your payment information is encrypted and never stored on our servers.
                 </p>
-                <ul style="margin: 10px 0 0 20px; color: #1565c0;">
-                    <li>Automatic recurring billing</li>
-                    <li>Secure payment processing</li>
+                <ul style="margin: 10px 0 0 20px; color: #155724;">
+                    <li>PCI DSS Level 1 certified</li>
+                    <li>Bank-level security encryption</li>
                     <li>Instant payment confirmations</li>
                     <li>Easy subscription management</li>
-                    <li>Digital receipts and tracking</li>
+                    <li>Automatic recurring billing</li>
                 </ul>
             </div>
         </div>

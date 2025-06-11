@@ -525,6 +525,60 @@
             margin-bottom: 5px;
         }
 
+        /* Stripe Configuration Styles */
+        .stripe-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            font-size: 16px;
+        }
+
+        .status-indicator.connected {
+            color: #28a745;
+        }
+
+        .status-indicator.disconnected {
+            color: #dc3545;
+        }
+
+        .status-indicator.warning {
+            color: #ffc107;
+        }
+
+        .btn-test {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-test:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
         @media (max-width: 768px) {
             .dashboard-section {
                 grid-template-columns: 1fr;
@@ -767,6 +821,44 @@
                                 <span class="period">/month</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>💳 Payment Processing (Stripe)</h3>
+                    <div class="config-group">
+                        <label for="stripeMode"><strong>Payment Mode:</strong></label>
+                        <select id="stripeMode" class="config-input">
+                            <option value="test">Test Mode (Development)</option>
+                            <option value="live">Live Mode (Production)</option>
+                        </select>
+                        <small>Test mode uses fake payments for development. Live mode processes real payments.</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="stripePublishableKey"><strong>Stripe Publishable Key:</strong></label>
+                        <input type="text" id="stripePublishableKey" placeholder="pk_test_..." class="config-input">
+                        <small>Public key from your Stripe dashboard (starts with pk_test_ or pk_live_)</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="stripeSecretKey"><strong>Stripe Secret Key:</strong></label>
+                        <input type="password" id="stripeSecretKey" placeholder="sk_test_..." class="config-input">
+                        <small>Secret key from your Stripe dashboard (starts with sk_test_ or sk_live_)</small>
+                    </div>
+                    
+                    <div class="config-group">
+                        <label for="stripeWebhookSecret"><strong>Webhook Secret:</strong></label>
+                        <input type="password" id="stripeWebhookSecret" placeholder="whsec_..." class="config-input">
+                        <small>Webhook signing secret for secure payment notifications</small>
+                    </div>
+                    
+                    <div class="stripe-status">
+                        <div id="stripeConnectionStatus" class="connection-status">
+                            <span class="status-indicator" id="stripeStatusIcon">⚠️</span>
+                            <span id="stripeStatusText">Not configured</span>
+                        </div>
+                        <button onclick="testStripeConnection()" class="btn-test">🔍 Test Connection</button>
                     </div>
                 </div>
 

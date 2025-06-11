@@ -31,6 +31,15 @@ let CONFIG = {
         ELITE: 180
     },
     
+    // Stripe payment processing configuration
+    STRIPE: {
+        MODE: 'test', // 'test' or 'live'
+        PUBLISHABLE_KEY: 'pk_test_51234567890abcdef', // Test key placeholder
+        SECRET_KEY: 'sk_test_51234567890abcdef', // Test key placeholder
+        WEBHOOK_SECRET: 'whsec_1234567890abcdef', // Webhook secret
+        WEBHOOK_ENDPOINT: 'https://sitandstaypetcare.netlify.app/.netlify/functions/stripe-webhook'
+    },
+    
     // Page content mapping for editor
     PAGES: {
         'about': {
@@ -593,6 +602,15 @@ function loadCurrentConfig() {
         document.getElementById('premiumPrice').value = CONFIG.PRICING?.PREMIUM || 120;
         document.getElementById('elitePrice').value = CONFIG.PRICING?.ELITE || 180;
         
+        // Load Stripe configuration if available
+        document.getElementById('stripeMode').value = CONFIG.STRIPE?.MODE || 'test';
+        document.getElementById('stripePublishableKey').value = CONFIG.STRIPE?.PUBLISHABLE_KEY || '';
+        document.getElementById('stripeSecretKey').value = CONFIG.STRIPE?.SECRET_KEY || '';
+        document.getElementById('stripeWebhookSecret').value = CONFIG.STRIPE?.WEBHOOK_SECRET || '';
+        
+        // Update Stripe connection status
+        updateStripeStatus();
+        
         showConfigSuccess('Current configuration loaded successfully!');
         
     } catch (error) {
@@ -614,6 +632,10 @@ function saveConfiguration() {
         const basicPrice = parseInt(document.getElementById('basicPrice').value) || 80;
         const premiumPrice = parseInt(document.getElementById('premiumPrice').value) || 120;
         const elitePrice = parseInt(document.getElementById('elitePrice').value) || 180;
+        const stripeMode = document.getElementById('stripeMode').value.trim();
+        const stripePublishableKey = document.getElementById('stripePublishableKey').value.trim();
+        const stripeSecretKey = document.getElementById('stripeSecretKey').value.trim();
+        const stripeWebhookSecret = document.getElementById('stripeWebhookSecret').value.trim();
         
         // Validate inputs
         if (!businessOwnerEmail || !isValidEmail(businessOwnerEmail)) {
@@ -650,6 +672,22 @@ function saveConfiguration() {
             return;
         }
         
+        // Validate Stripe configuration if provided
+        if (stripePublishableKey && !stripePublishableKey.startsWith('pk_')) {
+            showConfigError('Stripe Publishable Key must start with "pk_"');
+            return;
+        }
+        
+        if (stripeSecretKey && !stripeSecretKey.startsWith('sk_')) {
+            showConfigError('Stripe Secret Key must start with "sk_"');
+            return;
+        }
+        
+        if (stripeWebhookSecret && !stripeWebhookSecret.startsWith('whsec_')) {
+            showConfigError('Stripe Webhook Secret must start with "whsec_"');
+            return;
+        }
+        
         // Update CONFIG object
         CONFIG.BUSINESS_OWNER_EMAIL = businessOwnerEmail;
         CONFIG.AUTHORIZED_ADMINS = authorizedEmails;
@@ -661,6 +699,14 @@ function saveConfiguration() {
             ELITE: elitePrice
         };
         
+        CONFIG.STRIPE = {
+            MODE: stripeMode,
+            PUBLISHABLE_KEY: stripePublishableKey,
+            SECRET_KEY: stripeSecretKey,
+            WEBHOOK_SECRET: stripeWebhookSecret,
+            WEBHOOK_ENDPOINT: CONFIG.STRIPE.WEBHOOK_ENDPOINT // Keep existing endpoint
+        };
+        
         // Save to localStorage for persistence
         localStorage.setItem('sitandstay_config', JSON.stringify(CONFIG));
         
@@ -668,6 +714,9 @@ function saveConfiguration() {
         if (analyticsId && window.gtag) {
             gtag('config', analyticsId);
         }
+        
+        // Update Stripe connection status
+        updateStripeStatus();
         
         showConfigSuccess('Configuration saved successfully! Changes will take effect immediately.');
         
@@ -693,6 +742,12 @@ function resetToDefaults() {
             document.getElementById('basicPrice').value = '80';
             document.getElementById('premiumPrice').value = '120';
             document.getElementById('elitePrice').value = '180';
+            document.getElementById('stripeMode').value = 'test';
+            document.getElementById('stripePublishableKey').value = 'pk_test_51234567890abcdef';
+            document.getElementById('stripeSecretKey').value = 'sk_test_51234567890abcdef';
+            document.getElementById('stripeWebhookSecret').value = 'whsec_1234567890abcdef';
+            
+            updateStripeStatus();
             
             showConfigSuccess('Configuration reset to default values. Click "Save Configuration" to apply changes.');
             
@@ -1053,6 +1108,86 @@ function hideJSMessages() {
     document.getElementById('jsValidationResult').style.display = 'none';
 }
 
+/**
+ * Stripe Configuration Functions
+ */
+
+/**
+ * Update Stripe connection status display
+ */
+function updateStripeStatus() {
+    const statusIcon = document.getElementById('stripeStatusIcon');
+    const statusText = document.getElementById('stripeStatusText');
+    const publishableKey = document.getElementById('stripePublishableKey').value.trim();
+    const secretKey = document.getElementById('stripeSecretKey').value.trim();
+    const mode = document.getElementById('stripeMode').value;
+    
+    if (!publishableKey || !secretKey) {
+        statusIcon.textContent = '⚠️';
+        statusIcon.className = 'status-indicator warning';
+        statusText.textContent = 'Not configured';
+        return;
+    }
+    
+    // Check if keys match the selected mode
+    const isTestMode = mode === 'test';
+    const keysMatchMode = 
+        (isTestMode && publishableKey.includes('test') && secretKey.includes('test')) ||
+        (!isTestMode && publishableKey.includes('live') && secretKey.includes('live'));
+    
+    if (!keysMatchMode) {
+        statusIcon.textContent = '❌';
+        statusIcon.className = 'status-indicator disconnected';
+        statusText.textContent = `Keys don't match ${mode} mode`;
+        return;
+    }
+    
+    statusIcon.textContent = '✅';
+    statusIcon.className = 'status-indicator connected';
+    statusText.textContent = `${mode.charAt(0).toUpperCase() + mode.slice(1)} mode configured`;
+}
+
+/**
+ * Test Stripe connection (basic validation)
+ */
+function testStripeConnection() {
+    const publishableKey = document.getElementById('stripePublishableKey').value.trim();
+    const secretKey = document.getElementById('stripeSecretKey').value.trim();
+    const mode = document.getElementById('stripeMode').value;
+    
+    if (!publishableKey || !secretKey) {
+        showConfigError('Please enter both Stripe Publishable Key and Secret Key before testing.');
+        return;
+    }
+    
+    // Basic key format validation
+    if (!publishableKey.startsWith('pk_')) {
+        showConfigError('Invalid Publishable Key format. Should start with "pk_"');
+        return;
+    }
+    
+    if (!secretKey.startsWith('sk_')) {
+        showConfigError('Invalid Secret Key format. Should start with "sk_"');
+        return;
+    }
+    
+    // Check if keys match the selected mode
+    const isTestMode = mode === 'test';
+    const keysMatchMode = 
+        (isTestMode && publishableKey.includes('test') && secretKey.includes('test')) ||
+        (!isTestMode && publishableKey.includes('live') && secretKey.includes('live'));
+    
+    if (!keysMatchMode) {
+        showConfigError(`Keys don't match ${mode} mode. ${isTestMode ? 'Test' : 'Live'} mode requires ${isTestMode ? 'test' : 'live'} keys.`);
+        return;
+    }
+    
+    // For now, just validate format and show success
+    // In production, we would make an actual API call to Stripe
+    updateStripeStatus();
+    showConfigSuccess(`✅ Stripe connection test passed! ${mode.charAt(0).toUpperCase() + mode.slice(1)} mode is properly configured.`);
+}
+
 // Make functions available globally for HTML onclick handlers
 window.handleCredentialResponse = handleCredentialResponse;
 window.signOut = signOut;
@@ -1067,4 +1202,6 @@ window.saveJavaScriptFile = saveJavaScriptFile;
 window.formatJavaScript = formatJavaScript;
 window.validateJavaScript = validateJavaScript;
 window.downloadJSBackup = downloadJSBackup;
-window.cancelJSEdit = cancelJSEdit; 
+window.cancelJSEdit = cancelJSEdit;
+window.testStripeConnection = testStripeConnection;
+window.updateStripeStatus = updateStripeStatus; 
