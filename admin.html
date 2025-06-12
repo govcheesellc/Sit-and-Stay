@@ -1993,6 +1993,223 @@
         </div>
     </div>
 
+    <!-- Dancing Dog Easter Egg -->
+    <div id="dancingDog" class="dancing-dog" style="display: none;">
+        <div class="dog-emoji">🐕</div>
+        <div class="dance-text">Woof! Keep up the great work! 🎉</div>
+    </div>
+
     <script src="admin.js"></script>
+    
+    <script>
+        // Dancing Dog Easter Egg 🐕💃
+        let dogTimer = null;
+        let dogActive = false;
+        
+        function createDancingDog() {
+            if (dogActive) return; // Don't create multiple dogs
+            
+            const dog = document.getElementById('dancingDog');
+            const container = document.querySelector('.admin-container');
+            
+            if (!dog || !container) return;
+            
+            dogActive = true;
+            
+            // Random position within the container
+            const containerRect = container.getBoundingClientRect();
+            const maxX = Math.max(100, containerRect.width - 200);
+            const maxY = Math.max(100, containerRect.height - 150);
+            
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+            
+            // Position the dog
+            dog.style.left = randomX + 'px';
+            dog.style.top = randomY + 'px';
+            dog.style.display = 'block';
+            
+            // Add dancing animation
+            dog.classList.add('dancing');
+            
+            // Play a fun sound effect (using Web Audio API for a cheerful beep)
+            playDogSound();
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                dog.style.display = 'none';
+                dog.classList.remove('dancing');
+                dogActive = false;
+                
+                // Schedule next appearance (random between 2-8 minutes)
+                const nextAppearance = Math.random() * 360000 + 120000; // 2-8 minutes
+                dogTimer = setTimeout(createDancingDog, nextAppearance);
+            }, 3000);
+        }
+        
+        function playDogSound() {
+            try {
+                // Create a cheerful melody using Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Play a happy little tune
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                
+                notes.forEach((frequency, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                    
+                    oscillator.start(audioContext.currentTime + index * 0.15);
+                    oscillator.stop(audioContext.currentTime + index * 0.15 + 0.3);
+                });
+            } catch (error) {
+                console.log('🐕 Woof! (Audio not available)');
+            }
+        }
+        
+        // Start the easter egg after user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for dashboard to load, then start the dog timer
+            setTimeout(() => {
+                if (document.getElementById('dashboardSection').style.display !== 'none') {
+                    // Start first appearance after 1-3 minutes
+                    const firstAppearance = Math.random() * 120000 + 60000; // 1-3 minutes
+                    dogTimer = setTimeout(createDancingDog, firstAppearance);
+                }
+            }, 5000);
+        });
+        
+        // Also trigger when dashboard becomes visible (after login)
+        const originalHandleSuccessfulLogin = window.handleSuccessfulLogin;
+        if (originalHandleSuccessfulLogin) {
+            window.handleSuccessfulLogin = function(user) {
+                originalHandleSuccessfulLogin(user);
+                
+                // Start dog timer after successful login
+                setTimeout(() => {
+                    const firstAppearance = Math.random() * 120000 + 60000; // 1-3 minutes
+                    dogTimer = setTimeout(createDancingDog, firstAppearance);
+                }, 5000);
+            };
+        }
+        
+        // Clean up timer when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (dogTimer) {
+                clearTimeout(dogTimer);
+            }
+        });
+    </script>
+    
+    <style>
+        .dancing-dog {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            text-align: center;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background-size: 400% 400%;
+            border-radius: 20px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid white;
+            animation: rainbow-bg 2s ease-in-out infinite;
+        }
+        
+        .dancing-dog.dancing {
+            animation: dance-party 3s ease-in-out, rainbow-bg 2s ease-in-out infinite;
+        }
+        
+        .dog-emoji {
+            font-size: 3em;
+            margin-bottom: 5px;
+            animation: bounce 0.5s ease-in-out infinite alternate;
+        }
+        
+        .dance-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        @keyframes dance-party {
+            0% { 
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { 
+                transform: scale(1.2) rotate(10deg);
+                opacity: 1;
+            }
+            20% { 
+                transform: scale(0.9) rotate(-10deg);
+            }
+            30% { 
+                transform: scale(1.1) rotate(15deg);
+            }
+            40% { 
+                transform: scale(0.95) rotate(-15deg);
+            }
+            50% { 
+                transform: scale(1.05) rotate(8deg);
+            }
+            60% { 
+                transform: scale(0.98) rotate(-8deg);
+            }
+            70% { 
+                transform: scale(1.02) rotate(5deg);
+            }
+            80% { 
+                transform: scale(0.99) rotate(-5deg);
+            }
+            90% { 
+                transform: scale(1.01) rotate(2deg);
+            }
+            95% { 
+                transform: scale(1) rotate(0deg);
+            }
+            100% { 
+                transform: scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes bounce {
+            0% { transform: translateY(0px) rotate(-5deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        @keyframes rainbow-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .dancing-dog {
+                padding: 10px 15px;
+            }
+            .dog-emoji {
+                font-size: 2.5em;
+            }
+            .dance-text {
+                font-size: 12px;
+            }
+        }
+    </style>
 </body>
 </html> 
