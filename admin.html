@@ -1472,6 +1472,41 @@
         .btn-add:hover { background: #357abd; }
         .btn-export { background: #28a745; color: white; border: none; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
         .btn-export:hover { background: #218838; }
+
+        .system-overview {
+            background: #f8f9fa;
+            border: 2px solid #4a90e2;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .system-overview h3 {
+            color: #4a90e2;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #f5a623;
+            padding-bottom: 8px;
+        }
+        .system-overview ol {
+            padding-left: 20px;
+            color: #333;
+            font-size: 1em;
+        }
+        .system-overview li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .system-overview p {
+            margin-top: 15px;
+            color: #4a90e2;
+            font-weight: 600;
+        }
+        .system-overview .pet-management-tip {
+            color: #ffb347;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -1726,6 +1761,12 @@
                 </div>
             </div>
 
+            <!-- Pet Management as a dashboard card -->
+            <div class="dashboard-card pet-management-card">
+                <h2>🐾 Pet Management</h2>
+                <p>Manage all pet profiles, view service history, and update pet information. Data is synced from Google Forms automatically.</p>
+                <button class="btn-save" onclick="openPetManagementModal()">Open Pet Management</button>
+            </div>
         </div>
     </div>
 
