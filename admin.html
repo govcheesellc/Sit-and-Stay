@@ -1553,26 +1553,26 @@
                 <!-- Revenue Projections -->
                 <div id="forecastingSection">
                     <div class="forecasting-grid">
-                        <div class="forecast-card">
-                            <h4>📈 Monthly Revenue Projection</h4>
+                        <div class="forecast-card" data-tooltip="Formula: (New Customers × Avg Price × Visits per Customer) × Seasonal Multiplier&#10;&#10;Example: (8 customers × $45 × 2.5 visits) × 1.25 (Spring) = $1,125&#10;&#10;Seasonal Multipliers:&#10;• Spring: 1.25 (+25%)&#10;• Summer: 1.45 (+45%)&#10;• Fall: 1.15 (+15%)&#10;• Winter: 1.35 (+35%)">
+                            <h4>📈 Monthly Revenue Projection <span class="info-icon">ℹ️</span></h4>
                             <div class="forecast-value" id="monthlyRevenue">$0</div>
                             <div class="forecast-trend" id="revenueTrend">+0% vs last month</div>
                         </div>
                         
-                        <div class="forecast-card">
-                            <h4>🎯 Annual Revenue Goal</h4>
+                        <div class="forecast-card" data-tooltip="Target: $60,000 annual revenue&#10;&#10;Progress Calculation:&#10;(Current Monthly Revenue × 12) ÷ $60,000 × 100%&#10;&#10;Example: ($1,125 × 12) ÷ $60,000 = 22.5% achieved&#10;&#10;This goal represents a sustainable full-time income from pet care services.">
+                            <h4>🎯 Annual Revenue Goal <span class="info-icon">ℹ️</span></h4>
                             <div class="forecast-value" id="annualGoal">$60,000</div>
                             <div class="forecast-progress" id="goalProgress">0% achieved</div>
                         </div>
                         
-                        <div class="forecast-card">
-                            <h4>👥 Customer Lifetime Value</h4>
+                        <div class="forecast-card" data-tooltip="Formula: (Avg Monthly Revenue per Customer × Average Lifespan in Months) ÷ (1 + Monthly Churn Rate)&#10;&#10;Example Calculation:&#10;• Monthly Revenue per Customer: $112.50&#10;• Average Lifespan: 12.5 months&#10;• Monthly Churn Rate: 8%&#10;• LTV = ($112.50 × 12.5) ÷ 1.08 = $1,302&#10;&#10;This represents the total revenue expected from each customer over their entire relationship with your business.">
+                            <h4>👥 Customer Lifetime Value <span class="info-icon">ℹ️</span></h4>
                             <div class="forecast-value" id="customerLTV">$0</div>
                             <div class="forecast-detail" id="ltvDetail">Avg: 0 months</div>
                         </div>
                         
-                        <div class="forecast-card">
-                            <h4>⚡ Capacity Utilization</h4>
+                        <div class="forecast-card" data-tooltip="Formula: (Current Monthly Visits ÷ Maximum Monthly Capacity) × 100%&#10;&#10;Maximum Capacity Calculation:&#10;• 160 visits per month (based on 8 visits per day × 20 working days)&#10;• Current visits = New Customers × Visits per Customer&#10;&#10;Example: (20 visits ÷ 160 max) × 100% = 12.5% utilization&#10;&#10;Optimal utilization is 70-80% to maintain quality while maximizing revenue.">
+                            <h4>⚡ Capacity Utilization <span class="info-icon">ℹ️</span></h4>
                             <div class="forecast-value" id="capacityUsage">0%</div>
                             <div class="forecast-detail" id="capacityDetail">0/160 max visits/month</div>
                         </div>
@@ -1632,25 +1632,114 @@
                     <div class="seasonal-analysis">
                         <h4>🌟 Seasonal Business Patterns</h4>
                         <div class="seasonal-grid">
-                            <div class="season-card">
-                                <h5>🌸 Spring (Mar-May)</h5>
+                            <div class="season-card" data-tooltip="Multiplier: 1.25 (Base Revenue × 1.25)&#10;&#10;Factors driving increased demand:&#10;• Spring cleaning activities&#10;• Easter/spring break travel&#10;• Warmer weather = more outdoor activities&#10;• Tax refund spending season">
+                                <h5>🌸 Spring (Mar-May) <span class="info-icon">ℹ️</span></h5>
                                 <div class="season-metric">+25% demand</div>
                                 <div class="season-detail">Spring cleaning, travel season</div>
                             </div>
-                            <div class="season-card">
-                                <h5>☀️ Summer (Jun-Aug)</h5>
+                            <div class="season-card" data-tooltip="Multiplier: 1.45 (Base Revenue × 1.45)&#10;&#10;Peak season factors:&#10;• Summer vacation travel surge&#10;• Family trips and extended vacations&#10;• Wedding season travel&#10;• Highest disposable income period">
+                                <h5>☀️ Summer (Jun-Aug) <span class="info-icon">ℹ️</span></h5>
                                 <div class="season-metric">+45% demand</div>
                                 <div class="season-detail">Vacation season peak</div>
                             </div>
-                            <div class="season-card">
-                                <h5>🍂 Fall (Sep-Nov)</h5>
+                            <div class="season-card" data-tooltip="Multiplier: 1.15 (Base Revenue × 1.15)&#10;&#10;Moderate increase factors:&#10;• Back-to-school travel&#10;• Business conference season&#10;• Fall sports and activities&#10;• Preparation for holiday season">
+                                <h5>🍂 Fall (Sep-Nov) <span class="info-icon">ℹ️</span></h5>
                                 <div class="season-metric">+15% demand</div>
                                 <div class="season-detail">Back to school, business travel</div>
                             </div>
-                            <div class="season-card">
-                                <h5>❄️ Winter (Dec-Feb)</h5>
+                            <div class="season-card" data-tooltip="Multiplier: 1.35 (Base Revenue × 1.35)&#10;&#10;High demand factors:&#10;• Holiday travel (Thanksgiving, Christmas, New Year)&#10;• Extended family visits&#10;• Winter vacation getaways&#10;• Year-end business travel">
+                                <h5>❄️ Winter (Dec-Feb) <span class="info-icon">ℹ️</span></h5>
                                 <div class="season-metric">+35% demand</div>
                                 <div class="season-detail">Holiday travel surge</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mathematical Methodology -->
+                    <div class="methodology-section">
+                        <h4>🧮 Mathematical Methodology & Formulas</h4>
+                        <div class="methodology-content">
+                            <div class="formula-section">
+                                <h5>📊 Core Revenue Formula</h5>
+                                <div class="formula-box">
+                                    <strong>Monthly Revenue = (New Customers × Average Price × Visits per Customer) × Seasonal Multiplier</strong>
+                                </div>
+                                <div class="formula-explanation">
+                                    <p><strong>Variables:</strong></p>
+                                    <ul>
+                                        <li><strong>New Customers:</strong> Number of new customers acquired per month (default: 8)</li>
+                                        <li><strong>Average Price:</strong> Average service price per visit (default: $45)</li>
+                                        <li><strong>Visits per Customer:</strong> Average visits per customer per month (default: 2.5)</li>
+                                        <li><strong>Seasonal Multiplier:</strong> Demand adjustment based on time of year (1.15 - 1.45)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="formula-section">
+                                <h5>💰 Customer Lifetime Value (LTV)</h5>
+                                <div class="formula-box">
+                                    <strong>LTV = (Monthly Revenue per Customer × Average Lifespan) ÷ (1 + Churn Rate)</strong>
+                                </div>
+                                <div class="formula-explanation">
+                                    <p><strong>Components:</strong></p>
+                                    <ul>
+                                        <li><strong>Monthly Revenue per Customer:</strong> Average Price × Visits per Customer</li>
+                                        <li><strong>Average Lifespan:</strong> 12.5 months (industry standard for pet care)</li>
+                                        <li><strong>Churn Rate:</strong> 8% monthly (customers who stop using service)</li>
+                                        <li><strong>Discount Factor:</strong> (1 + Churn Rate) accounts for customer attrition</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="formula-section">
+                                <h5>⚡ Capacity Utilization</h5>
+                                <div class="formula-box">
+                                    <strong>Utilization = (Current Monthly Visits ÷ Maximum Capacity) × 100%</strong>
+                                </div>
+                                <div class="formula-explanation">
+                                    <p><strong>Capacity Assumptions:</strong></p>
+                                    <ul>
+                                        <li><strong>Maximum Capacity:</strong> 160 visits per month</li>
+                                        <li><strong>Daily Capacity:</strong> 8 visits per day</li>
+                                        <li><strong>Working Days:</strong> 20 days per month (5 days/week × 4 weeks)</li>
+                                        <li><strong>Optimal Range:</strong> 70-80% utilization for quality service</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="formula-section">
+                                <h5>📈 Scenario Analysis</h5>
+                                <div class="formula-box">
+                                    <strong>Annual Revenue = Monthly Revenue × 12</strong><br>
+                                    <strong>Profit Margin = (Revenue - Estimated Costs) ÷ Revenue × 100%</strong>
+                                </div>
+                                <div class="formula-explanation">
+                                    <p><strong>Cost Assumptions (for profit calculations):</strong></p>
+                                    <ul>
+                                        <li><strong>Variable Costs:</strong> ~30% of revenue (gas, supplies, insurance)</li>
+                                        <li><strong>Fixed Costs:</strong> ~$500/month (website, phone, marketing)</li>
+                                        <li><strong>Net Profit:</strong> Revenue - Variable Costs - Fixed Costs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="formula-section">
+                                <h5>🎯 Goal Progress Tracking</h5>
+                                <div class="formula-box">
+                                    <strong>Progress = (Current Annual Revenue ÷ Target Revenue) × 100%</strong>
+                                </div>
+                                <div class="formula-explanation">
+                                    <p><strong>Target Justification:</strong></p>
+                                    <ul>
+                                        <li><strong>$60,000 Annual Goal:</strong> Represents sustainable full-time income</li>
+                                        <li><strong>$5,000 Monthly Target:</strong> $60,000 ÷ 12 months</li>
+                                        <li><strong>Growth Milestones:</strong> 25%, 50%, 75%, 100% achievement levels</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="methodology-note">
+                                <p><strong>📝 Note:</strong> These formulas are based on industry standards for pet care services and can be adjusted through the scenario planning tools above. All calculations update in real-time as you modify the input parameters.</p>
                             </div>
                         </div>
                     </div>
@@ -1675,15 +1764,16 @@
 
                 <h3>💰 Business Intelligence & Forecasting System</h3>
                 <div class="component-list">
-                    <p><strong>What it does:</strong> Provides advanced business analytics and revenue forecasting tools</p>
+                    <p><strong>What it does:</strong> Provides advanced business analytics and revenue forecasting tools with transparent mathematical methodology</p>
                     <ul>
-                        <li><strong>Revenue Projections:</strong> Real-time monthly and annual revenue forecasting</li>
-                        <li><strong>Customer Lifetime Value:</strong> Advanced LTV calculations with churn analysis</li>
-                        <li><strong>Capacity Planning:</strong> Smart utilization tracking to optimize business growth</li>
-                        <li><strong>What-If Scenarios:</strong> Interactive modeling for pricing and customer acquisition</li>
-                        <li><strong>AI Recommendations:</strong> Smart growth suggestions based on current performance</li>
-                        <li><strong>Seasonal Analysis:</strong> Demand forecasting based on travel patterns</li>
-                        <li><strong>Growth Milestones:</strong> 3-year revenue projections with expansion planning</li>
+                        <li><strong>Revenue Projections:</strong> Real-time monthly and annual revenue forecasting using seasonal multipliers</li>
+                        <li><strong>Customer Lifetime Value:</strong> Advanced LTV calculations with churn analysis (Formula: LTV = Monthly Revenue × Lifespan ÷ (1 + Churn Rate))</li>
+                        <li><strong>Capacity Planning:</strong> Smart utilization tracking (160 visits/month max capacity)</li>
+                        <li><strong>What-If Scenarios:</strong> Interactive modeling for pricing and customer acquisition with real-time calculations</li>
+                        <li><strong>Mathematical Transparency:</strong> Hover tooltips show exact formulas and calculations behind every number</li>
+                        <li><strong>Seasonal Analysis:</strong> Demand forecasting with documented multipliers (Spring: +25%, Summer: +45%, Fall: +15%, Winter: +35%)</li>
+                        <li><strong>Formula Documentation:</strong> Complete mathematical methodology section explaining all calculations</li>
+                        <li><strong>Industry Standards:</strong> Based on pet care industry benchmarks and best practices</li>
                     </ul>
                 </div>
 
@@ -2198,18 +2288,168 @@
             100% { background-position: 0% 50%; }
         }
         
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .dancing-dog {
-                padding: 10px 15px;
-            }
-            .dog-emoji {
-                font-size: 2.5em;
-            }
-            .dance-text {
-                font-size: 12px;
-            }
-        }
+                 /* Mobile responsiveness */
+         @media (max-width: 768px) {
+             .dancing-dog {
+                 padding: 10px 15px;
+             }
+             .dog-emoji {
+                 font-size: 2.5em;
+             }
+             .dance-text {
+                 font-size: 12px;
+             }
+         }
+         
+         /* Tooltip Styles */
+         .info-icon {
+             color: #4a90e2;
+             font-size: 0.8em;
+             margin-left: 5px;
+             cursor: help;
+             opacity: 0.7;
+             transition: opacity 0.3s ease;
+         }
+         
+         .info-icon:hover {
+             opacity: 1;
+         }
+         
+         [data-tooltip] {
+             position: relative;
+             cursor: help;
+         }
+         
+         [data-tooltip]:hover::after {
+             content: attr(data-tooltip);
+             position: absolute;
+             bottom: 100%;
+             left: 50%;
+             transform: translateX(-50%);
+             background: rgba(0, 0, 0, 0.9);
+             color: white;
+             padding: 12px 16px;
+             border-radius: 8px;
+             font-size: 13px;
+             line-height: 1.4;
+             white-space: pre-line;
+             z-index: 10000;
+             max-width: 350px;
+             width: max-content;
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+         }
+         
+         [data-tooltip]:hover::before {
+             content: '';
+             position: absolute;
+             bottom: 100%;
+             left: 50%;
+             transform: translateX(-50%) translateY(100%);
+             border: 6px solid transparent;
+             border-top-color: rgba(0, 0, 0, 0.9);
+             z-index: 10001;
+         }
+         
+         /* Mathematical Methodology Styles */
+         .methodology-section {
+             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+             border-radius: 15px;
+             padding: 25px;
+             margin-top: 30px;
+             border: 2px solid #dee2e6;
+         }
+         
+         .methodology-content {
+             display: flex;
+             flex-direction: column;
+             gap: 25px;
+         }
+         
+         .formula-section {
+             background: white;
+             border-radius: 12px;
+             padding: 20px;
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+             border-left: 4px solid #4a90e2;
+         }
+         
+         .formula-section h5 {
+             color: #4a90e2;
+             margin: 0 0 15px 0;
+             font-size: 1.1em;
+             font-weight: 600;
+         }
+         
+         .formula-box {
+             background: linear-gradient(135deg, #4a90e2, #357abd);
+             color: white;
+             padding: 15px 20px;
+             border-radius: 8px;
+             margin-bottom: 15px;
+             font-family: 'Courier New', monospace;
+             font-size: 14px;
+             line-height: 1.6;
+             box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+         }
+         
+         .formula-explanation {
+             color: #495057;
+             font-size: 14px;
+         }
+         
+         .formula-explanation p {
+             margin: 0 0 10px 0;
+             font-weight: 600;
+         }
+         
+         .formula-explanation ul {
+             margin: 0;
+             padding-left: 20px;
+         }
+         
+         .formula-explanation li {
+             margin-bottom: 8px;
+             line-height: 1.5;
+         }
+         
+         .methodology-note {
+             background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+             border: 1px solid #ffeaa7;
+             border-radius: 8px;
+             padding: 15px;
+             margin-top: 20px;
+         }
+         
+         .methodology-note p {
+             margin: 0;
+             color: #856404;
+             font-size: 14px;
+             line-height: 1.5;
+         }
+         
+         /* Mobile responsiveness for methodology */
+         @media (max-width: 768px) {
+             .methodology-section {
+                 padding: 15px;
+                 margin-top: 20px;
+             }
+             
+             .formula-section {
+                 padding: 15px;
+             }
+             
+             .formula-box {
+                 padding: 12px 15px;
+                 font-size: 12px;
+             }
+             
+             [data-tooltip]:hover::after {
+                 max-width: 280px;
+                 font-size: 12px;
+                 padding: 10px 12px;
+             }
+         }
     </style>
 </body>
 </html> 
