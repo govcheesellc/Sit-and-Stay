@@ -18,6 +18,10 @@ const BUSINESS_PHONE = '(817) 395-9982';
 // This will create events in bailee.williams@google.com's calendar
 const BAILEE_CALENDAR_ID = 'primary'; // Uses your default calendar
 
+// Pet Database Configuration
+const PET_DATABASE_SHEET_ID = 'YOUR_PET_DATABASE_SHEET_ID'; // Replace with actual Google Sheet ID
+const PET_DATABASE_SHEET_NAME = 'Pet Profiles';
+
 // Premium subscriber configuration
 const PREMIUM_DISCOUNT_PERCENT = 10;
 const ELITE_DISCOUNT_PERCENT = 15;
@@ -68,6 +72,10 @@ function onFormSubmit(e) {
     
     // Booking approved - process it
     const calendarEvent = createCalendarEvent(bookingData);
+    
+    // Create or update pet profile in database
+    createOrUpdatePetProfile(bookingData);
+    
     sendConfirmationEmail(bookingData, calendarEvent);
     sendOwnerNotification(bookingData, calendarEvent);
     
@@ -595,5 +603,283 @@ function testCalendarAccess() {
       console.error('❌ Default calendar access also failed:', defaultError);
       return false;
     }
+  }
+}
+
+/**
+ * Creates or updates a pet profile in the database
+ */
+function createOrUpdatePetProfile(data) {
+  try {
+    console.log('Creating/updating pet profile for:', data.dogName);
+    
+    // Get or create the pet database sheet
+    const sheet = getPetDatabaseSheet();
+    if (!sheet) {
+      console.error('Could not access pet database sheet');
+      return;
+    }
+    
+    // Check if pet already exists
+    const existingPetRow = findPetByNameAndOwner(sheet, data.dogName, data.customerName);
+    
+    const petData = {
+      petName: data.dogName,
+      breed: data.breed,
+      ownerName: data.customerName,
+      ownerEmail: data.email,
+      ownerPhone: data.phone,
+      ownerAddress: data.address,
+      specialNeeds: data.specialNeeds || 'None',
+      lastService: data.serviceType,
+      lastServiceDate: data.date,
+      lastServiceTime: data.time,
+      totalVisits: 1,
+      isPremiumOwner: data.premiumInfo ? data.premiumInfo.isPremium : false,
+      premiumTier: data.premiumInfo ? data.premiumInfo.tier : 'basic',
+      dateCreated: new Date(),
+      lastUpdated: new Date(),
+      notes: ''
+    };
+    
+    if (existingPetRow) {
+      // Update existing pet profile
+      updateExistingPetProfile(sheet, existingPetRow, petData, data);
+    } else {
+      // Create new pet profile
+      createNewPetProfile(sheet, petData);
+    }
+    
+    console.log('Pet profile processed successfully');
+    
+  } catch (error) {
+    console.error('Error creating/updating pet profile:', error);
+  }
+}
+
+/**
+ * Gets or creates the pet database sheet
+ */
+function getPetDatabaseSheet() {
+  try {
+    // Try to open existing sheet by ID
+    if (PET_DATABASE_SHEET_ID && PET_DATABASE_SHEET_ID !== 'YOUR_PET_DATABASE_SHEET_ID') {
+      const spreadsheet = SpreadsheetApp.openById(PET_DATABASE_SHEET_ID);
+      let sheet = spreadsheet.getSheetByName(PET_DATABASE_SHEET_NAME);
+      
+      if (!sheet) {
+        // Create the sheet if it doesn't exist
+        sheet = spreadsheet.insertSheet(PET_DATABASE_SHEET_NAME);
+        setupPetDatabaseHeaders(sheet);
+      }
+      
+      return sheet;
+    } else {
+      // Create a new spreadsheet for pet database
+      const spreadsheet = SpreadsheetApp.create('Sit and Stay - Pet Database');
+      const sheet = spreadsheet.getActiveSheet();
+      sheet.setName(PET_DATABASE_SHEET_NAME);
+      setupPetDatabaseHeaders(sheet);
+      
+      // Log the new spreadsheet ID for configuration
+      console.log('🆕 Created new Pet Database spreadsheet. ID:', spreadsheet.getId());
+      console.log('📝 Please update PET_DATABASE_SHEET_ID in the script configuration');
+      
+      return sheet;
+    }
+  } catch (error) {
+    console.error('Error accessing pet database sheet:', error);
+    return null;
+  }
+}
+
+/**
+ * Sets up the headers for the pet database sheet
+ */
+function setupPetDatabaseHeaders(sheet) {
+  const headers = [
+    'Pet ID',
+    'Pet Name',
+    'Breed',
+    'Owner Name',
+    'Owner Email',
+    'Owner Phone',
+    'Owner Address',
+    'Special Needs',
+    'Last Service',
+    'Last Service Date',
+    'Last Service Time',
+    'Total Visits',
+    'Is Premium Owner',
+    'Premium Tier',
+    'Date Created',
+    'Last Updated',
+    'Notes',
+    'Emergency Contact',
+    'Veterinarian',
+    'Medications',
+    'Allergies',
+    'Behavioral Notes',
+    'Preferred Activities',
+    'Feeding Instructions'
+  ];
+  
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  // Format headers
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#4a90e2');
+  headerRange.setFontColor('white');
+  headerRange.setFontWeight('bold');
+  headerRange.setFontSize(11);
+  
+  // Auto-resize columns
+  sheet.autoResizeColumns(1, headers.length);
+  
+  console.log('Pet database headers set up successfully');
+}
+
+/**
+ * Finds a pet by name and owner in the database
+ */
+function findPetByNameAndOwner(sheet, petName, ownerName) {
+  try {
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) { // Skip header row
+      const row = data[i];
+      if (row[1] && row[3] && // Pet Name and Owner Name columns
+          row[1].toString().toLowerCase() === petName.toLowerCase() &&
+          row[3].toString().toLowerCase() === ownerName.toLowerCase()) {
+        return i + 1; // Return 1-based row number
+      }
+    }
+    
+    return null; // Pet not found
+  } catch (error) {
+    console.error('Error finding pet:', error);
+    return null;
+  }
+}
+
+/**
+ * Creates a new pet profile
+ */
+function createNewPetProfile(sheet, petData) {
+  try {
+    const nextRow = sheet.getLastRow() + 1;
+    const petId = `PET${String(nextRow - 1).padStart(4, '0')}`; // Generate unique pet ID
+    
+    const rowData = [
+      petId,
+      petData.petName,
+      petData.breed,
+      petData.ownerName,
+      petData.ownerEmail,
+      petData.ownerPhone,
+      petData.ownerAddress,
+      petData.specialNeeds,
+      petData.lastService,
+      petData.lastServiceDate,
+      petData.lastServiceTime,
+      petData.totalVisits,
+      petData.isPremiumOwner,
+      petData.premiumTier,
+      petData.dateCreated,
+      petData.lastUpdated,
+      petData.notes,
+      '', // Emergency Contact
+      '', // Veterinarian
+      '', // Medications
+      '', // Allergies
+      '', // Behavioral Notes
+      '', // Preferred Activities
+      ''  // Feeding Instructions
+    ];
+    
+    sheet.getRange(nextRow, 1, 1, rowData.length).setValues([rowData]);
+    
+    console.log(`✅ Created new pet profile: ${petData.petName} (${petId})`);
+    
+  } catch (error) {
+    console.error('Error creating new pet profile:', error);
+  }
+}
+
+/**
+ * Updates an existing pet profile
+ */
+function updateExistingPetProfile(sheet, rowNumber, petData, bookingData) {
+  try {
+    // Get current data
+    const currentData = sheet.getRange(rowNumber, 1, 1, 24).getValues()[0];
+    
+    // Update relevant fields
+    const updatedData = [
+      currentData[0], // Keep Pet ID
+      petData.petName,
+      petData.breed,
+      petData.ownerName,
+      petData.ownerEmail,
+      petData.ownerPhone,
+      petData.ownerAddress,
+      petData.specialNeeds,
+      petData.lastService, // Update last service
+      petData.lastServiceDate, // Update last service date
+      petData.lastServiceTime, // Update last service time
+      (currentData[11] || 0) + 1, // Increment total visits
+      petData.isPremiumOwner,
+      petData.premiumTier,
+      currentData[14], // Keep original date created
+      petData.lastUpdated, // Update last updated
+      currentData[16], // Keep existing notes
+      currentData[17], // Keep emergency contact
+      currentData[18], // Keep veterinarian
+      currentData[19], // Keep medications
+      currentData[20], // Keep allergies
+      currentData[21], // Keep behavioral notes
+      currentData[22], // Keep preferred activities
+      currentData[23]  // Keep feeding instructions
+    ];
+    
+    sheet.getRange(rowNumber, 1, 1, updatedData.length).setValues([updatedData]);
+    
+    console.log(`✅ Updated pet profile: ${petData.petName} (Visit #${updatedData[11]})`);
+    
+  } catch (error) {
+    console.error('Error updating pet profile:', error);
+  }
+}
+
+/**
+ * Test pet database functionality
+ */
+function testPetDatabase() {
+  try {
+    console.log('Testing pet database functionality...');
+    
+    // Test data
+    const testData = {
+      dogName: 'Buddy',
+      breed: 'Golden Retriever',
+      customerName: 'John Smith',
+      email: 'john@example.com',
+      phone: '555-1234',
+      address: '123 Main St',
+      specialNeeds: 'Needs medication at 2pm',
+      serviceType: 'Dog Walking',
+      date: '2024-01-15',
+      time: '10:00 AM',
+      premiumInfo: {
+        isPremium: true,
+        tier: 'premium'
+      }
+    };
+    
+    createOrUpdatePetProfile(testData);
+    console.log('✅ Pet database test completed');
+    
+  } catch (error) {
+    console.error('❌ Pet database test failed:', error);
   }
 } 

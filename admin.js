@@ -54,6 +54,13 @@ let CONFIG = {
             file: 'contact.html',
             title: 'Contact Page'
         }
+    },
+
+    // Pet Database Configuration
+    PET_DATABASE: {
+        SHEET_ID: 'YOUR_PET_DATABASE_SHEET_ID', // Replace with actual Google Sheet ID
+        SHEET_NAME: 'Pet Profiles',
+        API_KEY: 'YOUR_GOOGLE_SHEETS_API_KEY' // Replace with actual API key
     }
 };
 
@@ -63,6 +70,11 @@ let isAuthenticated = false;
 let currentPageContent = '';
 let selectedPage = '';
 let analyticsRefreshInterval = null;
+
+// Pet database variables
+let allPets = [];
+let filteredPets = [];
+let currentSearchTerm = '';
 
 /**
  * Initialize the admin dashboard when page loads
@@ -87,6 +99,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize Google Identity Services
     initializeGoogleAuth();
+
+    // Load pets after a short delay to ensure dashboard is ready
+    setTimeout(() => {
+        if (isAuthenticated) {
+            loadAllPets();
+        }
+    }, 1000);
 });
 
 /**
@@ -1745,4 +1764,455 @@ window.closeBusinessIntelligenceModal = closeBusinessIntelligenceModal;
 window.openSystemOverviewModal = openSystemOverviewModal;
 window.closeSystemOverviewModal = closeSystemOverviewModal;
 window.openConfigurationModal = openConfigurationModal;
-window.closeConfigurationModal = closeConfigurationModal; 
+window.closeConfigurationModal = closeConfigurationModal;
+
+/**
+ * Pet Database Functions
+ */
+
+/**
+ * Load all pets from the database
+ */
+async function loadAllPets() {
+    try {
+        showPetDatabaseLoading(true);
+        hidePetDatabaseError();
+        
+        // For now, we'll use demo data since Google Sheets API requires setup
+        // In production, this would fetch from the actual Google Sheet
+        const pets = await fetchPetDatabaseData();
+        
+        allPets = pets;
+        filteredPets = [...allPets];
+        
+        updateDatabaseStats();
+        displayPets(filteredPets);
+        
+        showPetDatabaseLoading(false);
+        
+    } catch (error) {
+        console.error('Error loading pets:', error);
+        showPetDatabaseError('Failed to load pet database. Please check your configuration.');
+        showPetDatabaseLoading(false);
+    }
+}
+
+/**
+ * Fetch pet database data (demo implementation)
+ * In production, this would connect to Google Sheets API
+ */
+async function fetchPetDatabaseData() {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Demo data - in production this would come from Google Sheets
+    return [
+        {
+            petId: 'PET0001',
+            petName: 'Buddy',
+            breed: 'Golden Retriever',
+            ownerName: 'Sarah Johnson',
+            ownerEmail: 'sarah@example.com',
+            ownerPhone: '(555) 123-4567',
+            ownerAddress: '123 Oak Street, Allen, TX 75002',
+            specialNeeds: 'Needs medication at 2pm daily',
+            lastService: 'Dog Walking',
+            lastServiceDate: '2024-01-15',
+            lastServiceTime: '10:00 AM',
+            totalVisits: 12,
+            isPremiumOwner: true,
+            premiumTier: 'premium',
+            dateCreated: '2023-08-15',
+            lastUpdated: '2024-01-15',
+            notes: 'Very friendly, loves treats',
+            emergencyContact: 'Mike Johnson (555) 123-4568',
+            veterinarian: 'Allen Animal Hospital',
+            medications: 'Arthritis medication - 1 pill daily',
+            allergies: 'None known',
+            behavioralNotes: 'Excellent with children, mild separation anxiety',
+            preferredActivities: 'Fetch, long walks, swimming',
+            feedingInstructions: '2 cups dry food twice daily'
+        },
+        {
+            petId: 'PET0002',
+            petName: 'Luna',
+            breed: 'Border Collie',
+            ownerName: 'Michael Chen',
+            ownerEmail: 'michael@example.com',
+            ownerPhone: '(555) 987-6543',
+            ownerAddress: '456 Pine Avenue, Plano, TX 75023',
+            specialNeeds: 'High energy, needs mental stimulation',
+            lastService: 'Pet Sitting',
+            lastServiceDate: '2024-01-10',
+            lastServiceTime: '8:00 AM',
+            totalVisits: 8,
+            isPremiumOwner: false,
+            premiumTier: 'basic',
+            dateCreated: '2023-10-20',
+            lastUpdated: '2024-01-10',
+            notes: 'Extremely intelligent, knows many tricks',
+            emergencyContact: 'Lisa Chen (555) 987-6544',
+            veterinarian: 'Plano Pet Clinic',
+            medications: 'None',
+            allergies: 'Chicken (mild)',
+            behavioralNotes: 'Needs lots of exercise, great with other dogs',
+            preferredActivities: 'Agility training, puzzle toys, frisbee',
+            feedingInstructions: '1.5 cups high-protein food twice daily'
+        },
+        {
+            petId: 'PET0003',
+            petName: 'Max',
+            breed: 'German Shepherd',
+            ownerName: 'Jennifer Williams',
+            ownerEmail: 'jennifer@example.com',
+            ownerPhone: '(555) 456-7890',
+            ownerAddress: '789 Maple Drive, McKinney, TX 75070',
+            specialNeeds: 'Senior dog, joint issues',
+            lastService: 'Overnight Pet Sitting',
+            lastServiceDate: '2024-01-08',
+            lastServiceTime: '6:00 PM',
+            totalVisits: 15,
+            isPremiumOwner: true,
+            premiumTier: 'elite',
+            dateCreated: '2023-06-10',
+            lastUpdated: '2024-01-08',
+            notes: 'Gentle giant, very well-trained',
+            emergencyContact: 'Robert Williams (555) 456-7891',
+            veterinarian: 'McKinney Veterinary Hospital',
+            medications: 'Joint supplement daily, pain medication as needed',
+            allergies: 'Beef products',
+            behavioralNotes: 'Calm, protective, excellent guard dog',
+            preferredActivities: 'Short walks, gentle play, sunbathing',
+            feedingInstructions: '3 cups senior formula twice daily'
+        },
+        {
+            petId: 'PET0004',
+            petName: 'Bella',
+            breed: 'Labrador Mix',
+            ownerName: 'David Rodriguez',
+            ownerEmail: 'david@example.com',
+            ownerPhone: '(555) 321-0987',
+            ownerAddress: '321 Cedar Lane, Frisco, TX 75034',
+            specialNeeds: 'Rescue dog, can be shy with strangers',
+            lastService: 'Dog Walking',
+            lastServiceDate: '2024-01-12',
+            lastServiceTime: '2:00 PM',
+            totalVisits: 6,
+            isPremiumOwner: false,
+            premiumTier: 'basic',
+            dateCreated: '2023-11-05',
+            lastUpdated: '2024-01-12',
+            notes: 'Sweet personality, gaining confidence',
+            emergencyContact: 'Maria Rodriguez (555) 321-0988',
+            veterinarian: 'Frisco Animal Clinic',
+            medications: 'Anxiety medication as needed',
+            allergies: 'None known',
+            behavioralNotes: 'Improving with socialization, loves belly rubs',
+            preferredActivities: 'Quiet walks, gentle play, treats',
+            feedingInstructions: '2 cups sensitive stomach formula twice daily'
+        }
+    ];
+}
+
+/**
+ * Search pets by name, owner, or breed
+ */
+function searchPets() {
+    const searchTerm = document.getElementById('petSearch').value.toLowerCase().trim();
+    currentSearchTerm = searchTerm;
+    
+    if (searchTerm === '') {
+        filteredPets = [...allPets];
+    } else {
+        filteredPets = allPets.filter(pet => 
+            pet.petName.toLowerCase().includes(searchTerm) ||
+            pet.ownerName.toLowerCase().includes(searchTerm) ||
+            pet.breed.toLowerCase().includes(searchTerm) ||
+            pet.ownerEmail.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    applyFilters();
+    displayPets(filteredPets);
+    updateDatabaseStats();
+}
+
+/**
+ * Apply filters to the pet list
+ */
+function filterPets() {
+    applyFilters();
+    displayPets(filteredPets);
+    updateDatabaseStats();
+}
+
+/**
+ * Apply current filters to the pet list
+ */
+function applyFilters() {
+    let filtered = currentSearchTerm === '' ? [...allPets] : 
+        allPets.filter(pet => 
+            pet.petName.toLowerCase().includes(currentSearchTerm) ||
+            pet.ownerName.toLowerCase().includes(currentSearchTerm) ||
+            pet.breed.toLowerCase().includes(currentSearchTerm) ||
+            pet.ownerEmail.toLowerCase().includes(currentSearchTerm)
+        );
+    
+    // Apply premium filter
+    const premiumFilter = document.getElementById('premiumFilter').value;
+    if (premiumFilter) {
+        if (premiumFilter === 'premium') {
+            filtered = filtered.filter(pet => pet.isPremiumOwner);
+        } else if (premiumFilter === 'basic') {
+            filtered = filtered.filter(pet => !pet.isPremiumOwner);
+        }
+    }
+    
+    // Apply service filter
+    const serviceFilter = document.getElementById('serviceFilter').value;
+    if (serviceFilter) {
+        filtered = filtered.filter(pet => pet.lastService === serviceFilter);
+    }
+    
+    filteredPets = filtered;
+}
+
+/**
+ * Display pets in the grid
+ */
+function displayPets(pets) {
+    const petGrid = document.getElementById('petGrid');
+    
+    if (pets.length === 0) {
+        petGrid.innerHTML = `
+            <div class="no-pets-message">
+                <p>🔍 No pets found matching your search criteria.</p>
+                <p><strong>Try:</strong> Adjusting your search terms or clearing filters.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    petGrid.innerHTML = pets.map(pet => createPetCard(pet)).join('');
+}
+
+/**
+ * Create a pet card HTML
+ */
+function createPetCard(pet) {
+    const isPremium = pet.isPremiumOwner;
+    const premiumClass = isPremium ? 'premium' : '';
+    
+    return `
+        <div class="pet-card ${premiumClass}" onclick="showPetDetails('${pet.petId}')">
+            <div class="pet-header">
+                <div class="pet-avatar">🐕</div>
+                <div class="pet-info">
+                    <h4>${pet.petName}</h4>
+                    <p class="breed">${pet.breed}</p>
+                </div>
+            </div>
+            
+            <div class="pet-details">
+                <div class="pet-detail-item">
+                    <span class="pet-detail-label">Owner:</span>
+                    <span class="pet-detail-value">${pet.ownerName}</span>
+                </div>
+                <div class="pet-detail-item">
+                    <span class="pet-detail-label">Phone:</span>
+                    <span class="pet-detail-value">${pet.ownerPhone}</span>
+                </div>
+                <div class="pet-detail-item">
+                    <span class="pet-detail-label">Last Service:</span>
+                    <span class="pet-detail-value">${pet.lastService}</span>
+                </div>
+                <div class="pet-detail-item">
+                    <span class="pet-detail-label">Special Needs:</span>
+                    <span class="pet-detail-value">${pet.specialNeeds}</span>
+                </div>
+            </div>
+            
+            <div class="pet-stats">
+                <div class="pet-stat">
+                    <span class="pet-stat-number">${pet.totalVisits}</span>
+                    <span class="pet-stat-label">Visits</span>
+                </div>
+                <div class="pet-stat">
+                    <span class="pet-stat-number">${isPremium ? '⭐' : '👤'}</span>
+                    <span class="pet-stat-label">${pet.premiumTier}</span>
+                </div>
+                <div class="pet-stat">
+                    <span class="pet-stat-number">${formatDate(pet.lastServiceDate)}</span>
+                    <span class="pet-stat-label">Last Visit</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Show detailed pet information modal
+ */
+function showPetDetails(petId) {
+    const pet = allPets.find(p => p.petId === petId);
+    if (!pet) return;
+    
+    // Create and show pet details modal
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content pet-details-modal">
+            <div class="modal-header">
+                <h2>🐕 ${pet.petName} - Complete Profile</h2>
+                <button class="modal-close" onclick="closePetDetailsModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="pet-details-grid">
+                    <div class="pet-details-section">
+                        <h3>📋 Basic Information</h3>
+                        <div class="detail-item"><strong>Pet ID:</strong> ${pet.petId}</div>
+                        <div class="detail-item"><strong>Name:</strong> ${pet.petName}</div>
+                        <div class="detail-item"><strong>Breed:</strong> ${pet.breed}</div>
+                        <div class="detail-item"><strong>Special Needs:</strong> ${pet.specialNeeds}</div>
+                    </div>
+                    
+                    <div class="pet-details-section">
+                        <h3>👤 Owner Information</h3>
+                        <div class="detail-item"><strong>Name:</strong> ${pet.ownerName}</div>
+                        <div class="detail-item"><strong>Email:</strong> ${pet.ownerEmail}</div>
+                        <div class="detail-item"><strong>Phone:</strong> ${pet.ownerPhone}</div>
+                        <div class="detail-item"><strong>Address:</strong> ${pet.ownerAddress}</div>
+                        <div class="detail-item"><strong>Premium Status:</strong> ${pet.isPremiumOwner ? `⭐ ${pet.premiumTier.toUpperCase()}` : '👤 Basic'}</div>
+                    </div>
+                    
+                    <div class="pet-details-section">
+                        <h3>🏥 Medical Information</h3>
+                        <div class="detail-item"><strong>Veterinarian:</strong> ${pet.veterinarian}</div>
+                        <div class="detail-item"><strong>Medications:</strong> ${pet.medications}</div>
+                        <div class="detail-item"><strong>Allergies:</strong> ${pet.allergies}</div>
+                        <div class="detail-item"><strong>Emergency Contact:</strong> ${pet.emergencyContact}</div>
+                    </div>
+                    
+                    <div class="pet-details-section">
+                        <h3>🎾 Care Preferences</h3>
+                        <div class="detail-item"><strong>Preferred Activities:</strong> ${pet.preferredActivities}</div>
+                        <div class="detail-item"><strong>Feeding Instructions:</strong> ${pet.feedingInstructions}</div>
+                        <div class="detail-item"><strong>Behavioral Notes:</strong> ${pet.behavioralNotes}</div>
+                    </div>
+                    
+                    <div class="pet-details-section">
+                        <h3>📊 Service History</h3>
+                        <div class="detail-item"><strong>Total Visits:</strong> ${pet.totalVisits}</div>
+                        <div class="detail-item"><strong>Last Service:</strong> ${pet.lastService}</div>
+                        <div class="detail-item"><strong>Last Service Date:</strong> ${formatDate(pet.lastServiceDate)} at ${pet.lastServiceTime}</div>
+                        <div class="detail-item"><strong>Customer Since:</strong> ${formatDate(pet.dateCreated)}</div>
+                        <div class="detail-item"><strong>Last Updated:</strong> ${formatDate(pet.lastUpdated)}</div>
+                    </div>
+                    
+                    <div class="pet-details-section">
+                        <h3>📝 Notes</h3>
+                        <div class="detail-item notes-section">${pet.notes}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add escape key handler
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closePetDetailsModal();
+        }
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePetDetailsModal();
+        }
+    });
+}
+
+/**
+ * Close pet details modal
+ */
+function closePetDetailsModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+/**
+ * Update database statistics
+ */
+function updateDatabaseStats() {
+    const totalPets = filteredPets.length;
+    const premiumPets = filteredPets.filter(pet => pet.isPremiumOwner).length;
+    const totalVisits = filteredPets.reduce((sum, pet) => sum + pet.totalVisits, 0);
+    
+    document.getElementById('totalPets').textContent = totalPets;
+    document.getElementById('premiumPets').textContent = premiumPets;
+    document.getElementById('totalVisits').textContent = totalVisits;
+}
+
+/**
+ * Show/hide pet database loading state
+ */
+function showPetDatabaseLoading(show) {
+    const loading = document.getElementById('petDatabaseLoading');
+    const content = document.getElementById('petDatabaseContent');
+    
+    if (show) {
+        loading.style.display = 'block';
+        content.style.display = 'none';
+    } else {
+        loading.style.display = 'none';
+        content.style.display = 'block';
+    }
+}
+
+/**
+ * Show pet database error
+ */
+function showPetDatabaseError(message) {
+    const error = document.getElementById('petDatabaseError');
+    const errorText = document.getElementById('petDatabaseErrorText');
+    
+    errorText.textContent = message;
+    error.style.display = 'block';
+}
+
+/**
+ * Hide pet database error
+ */
+function hidePetDatabaseError() {
+    const error = document.getElementById('petDatabaseError');
+    error.style.display = 'none';
+}
+
+/**
+ * Format date for display
+ */
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+// Add search on Enter key
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('petSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchPets();
+            }
+        });
+    }
+}); 
