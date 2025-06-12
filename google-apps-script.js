@@ -882,4 +882,65 @@ function testPetDatabase() {
   } catch (error) {
     console.error('❌ Pet database test failed:', error);
   }
+}
+
+// Pet Database Functions
+function getPetData() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form Responses');
+  if (!sheet) {
+    throw new Error('Form Responses sheet not found');
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  
+  // Find the relevant column indices
+  const nameIndex = headers.indexOf('Pet Name');
+  const typeIndex = headers.indexOf('Pet Type');
+  const breedIndex = headers.indexOf('Breed');
+  const ageIndex = headers.indexOf('Age');
+  const ownerIndex = headers.indexOf('Owner Name');
+  const serviceIndex = headers.indexOf('Service Type');
+  const timestampIndex = headers.indexOf('Timestamp');
+  const isPremiumIndex = headers.indexOf('Premium Service');
+
+  if (nameIndex === -1 || typeIndex === -1) {
+    throw new Error('Required columns not found in form responses');
+  }
+
+  // Process the data
+  const pets = data.slice(1).map((row, index) => {
+    return {
+      id: index + 1,
+      name: row[nameIndex] || 'Unknown',
+      type: row[typeIndex] || 'Unknown',
+      breed: row[breedIndex] || 'Unknown',
+      age: row[ageIndex] || 'Unknown',
+      owner: row[ownerIndex] || 'Unknown',
+      service: row[serviceIndex] || 'Unknown',
+      lastVisit: row[timestampIndex] ? new Date(row[timestampIndex]).toLocaleDateString() : 'Never',
+      isPremium: row[isPremiumIndex] === 'Yes',
+      visitCount: 1 // This could be calculated based on number of entries for this pet
+    };
+  });
+
+  return pets;
+}
+
+// Placeholder for adding a pet
+function addPet(pet) {
+  // TODO: Implement adding a pet to the sheet
+  return { success: false, message: 'Add pet not implemented yet.' };
+}
+
+// Placeholder for editing a pet
+function editPet(pet) {
+  // TODO: Implement editing a pet in the sheet
+  return { success: false, message: 'Edit pet not implemented yet.' };
+}
+
+// Placeholder for deleting a pet
+function deletePet(petId) {
+  // TODO: Implement deleting a pet from the sheet
+  return { success: false, message: 'Delete pet not implemented yet.' };
 } 

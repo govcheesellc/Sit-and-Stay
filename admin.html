@@ -1358,6 +1358,120 @@
                 gap: 10px;
             }
         }
+
+        /* Pet Database Styles */
+        .pet-database-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            padding: 10px 15px;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .filter-box select {
+            padding: 10px 15px;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            background: white;
+            color: #333;
+        }
+
+        .pet-table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .pet-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pet-table th,
+        .pet-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .pet-table th {
+            background: #4a90e2;
+            color: white;
+            font-weight: 600;
+        }
+
+        .pet-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .pet-table .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .pet-table .edit-btn {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .pet-table .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .floating-pet-button {
+            position: fixed;
+            left: 30px;
+            bottom: 170px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #ffb347, #ffcc33);
+            color: #333;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        .floating-pet-button:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        }
+        .fab-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .fab-label {
+            font-weight: 600;
+            font-size: 1em;
+        }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background: rgba(0,0,0,0.3); }
+        .modal-content { background: #fff; margin: 5% auto; border-radius: 12px; padding: 30px; width: 90%; max-width: 800px; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; }
+        .close { font-size: 2em; cursor: pointer; }
+        .pet-management-controls { display: flex; gap: 15px; margin-bottom: 20px; }
+        .btn-add { background: #4a90e2; color: white; border: none; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
+        .btn-add:hover { background: #357abd; }
+        .btn-export { background: #28a745; color: white; border: none; border-radius: 8px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
+        .btn-export:hover { background: #218838; }
     </style>
 </head>
 <body>
@@ -1394,40 +1508,32 @@
         <div id="dashboardSection" class="dashboard-section">
             <!-- User Info -->
             <div class="user-info">
-                <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+                <img src="" alt="User Avatar" class="user-avatar" id="userAvatar">
                 <div class="user-details">
-                    <h3 id="userName">Welcome!</h3>
-                    <p id="userEmail"></p>
+                    <h3 id="userName">Loading...</h3>
+                    <p id="userEmail">Loading...</p>
                 </div>
-                <button onclick="signOut()" class="logout-btn">Sign Out</button>
+                <button class="logout-btn" onclick="handleSignOut()">Logout</button>
             </div>
-
-
 
             <!-- Analytics Dashboard -->
             <div class="dashboard-card analytics-card">
-                <h2>📊 Website Analytics</h2>
-                <div id="analyticsLoading" class="loading">
-                    <p>Loading analytics data...</p>
-                </div>
-                <div id="analyticsError" class="error" style="display: none;">
-                    <strong>Analytics Error:</strong> <span id="analyticsErrorText"></span>
-                </div>
-                <div id="analyticsData" class="analytics-grid" style="display: none;">
+                <h2>Analytics Overview</h2>
+                <div class="analytics-grid">
                     <div class="metric-box">
-                        <div class="metric-number" id="pageViews">-</div>
-                        <div class="metric-label">Page Views (30 days)</div>
+                        <div class="metric-number" id="totalVisits">0</div>
+                        <div class="metric-label">Total Visits</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-number" id="uniqueVisitors">-</div>
+                        <div class="metric-number" id="uniqueVisitors">0</div>
                         <div class="metric-label">Unique Visitors</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-number" id="avgSessionDuration">-</div>
-                        <div class="metric-label">Avg. Session Duration</div>
+                        <div class="metric-number" id="avgTimeOnSite">0m</div>
+                        <div class="metric-label">Avg. Time on Site</div>
                     </div>
                     <div class="metric-box">
-                        <div class="metric-number" id="bounceRate">-</div>
+                        <div class="metric-number" id="bounceRate">0%</div>
                         <div class="metric-label">Bounce Rate</div>
                     </div>
                 </div>
@@ -1578,7 +1684,47 @@
                 </div>
             </div>
 
-
+            <!-- Pet Database Modal -->
+            <div id="petDatabaseModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Pet Database</h2>
+                        <span class="close" onclick="closePetDatabase()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="pet-database-controls">
+                            <div class="search-box">
+                                <input type="text" id="petSearch" placeholder="Search pets..." onkeyup="searchPets()">
+                            </div>
+                            <div class="filter-box">
+                                <select id="petFilter" onchange="filterPets()">
+                                    <option value="all">All Pets</option>
+                                    <option value="dog">Dogs</option>
+                                    <option value="cat">Cats</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pet-table-container">
+                            <table id="petTable" class="pet-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Breed</th>
+                                        <th>Age</th>
+                                        <th>Owner</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="petTableBody">
+                                    <!-- Pet data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -2011,6 +2157,19 @@
                     <h4>🎯 Result: From Simple Website to Business Management Platform</h4>
                     <p>What started as a basic pet care website is now a sophisticated business automation system that rivals services like Rover and Wag!</p>
                 </div>
+
+                <!-- How It Works Section -->
+                <div class="system-overview">
+                    <h3>How Pet Management Works</h3>
+                    <ol>
+                        <li><strong>Customer fills out the Google Form:</strong> Pet and owner details are submitted and stored in the connected Google Sheet.</li>
+                        <li><strong>Data is automatically synced:</strong> Every time you open the Pet Management modal (via the floating button), the latest data is fetched from the Google Sheet using Google Apps Script.</li>
+                        <li><strong>View, search, and filter:</strong> Use the modal to view all pets, search by name/owner/breed, and filter as needed.</li>
+                        <li><strong>Add, edit, delete, export:</strong> These features are coming soon! For now, you can view and search all pets. (Manual changes to the Google Sheet will also appear here.)</li>
+                        <li><strong>Live updates:</strong> Any new Google Form submission will appear in the modal after a page refresh or reopening the modal.</li>
+                    </ol>
+                    <p><strong>Tip:</strong> Use the floating <span style="color:#ffb347;">🐾 Pet Management</span> button in the lower left to open the modal from anywhere in the admin dashboard.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -2149,6 +2308,49 @@
         <div class="dance-text">Woof! Keep up the great work! 🎉</div>
     </div>
 
+    <!-- Floating Pet Management Button -->
+    <div class="floating-pet-button" onclick="openPetManagementModal()">
+        <div class="fab-icon">🐾</div>
+        <div class="fab-label">Pet Management</div>
+    </div>
+
+    <!-- Pet Management Modal -->
+    <div id="petManagementModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Pet Management</h2>
+                <span class="close" onclick="closePetManagementModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="pet-management-controls">
+                    <input type="text" id="petModalSearch" placeholder="Search pets..." onkeyup="searchModalPets()">
+                    <button onclick="showAddPetForm()" class="btn-add">➕ Add Pet</button>
+                </div>
+                <div class="pet-table-container">
+                    <table id="petModalTable" class="pet-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Breed</th>
+                                <th>Age</th>
+                                <th>Owner</th>
+                                <th>Service</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="petModalTableBody">
+                            <!-- Pet data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="exportPetDatabase()" class="btn-export">Export CSV</button>
+            </div>
+        </div>
+    </div>
+
     <script src="admin.js"></script>
     
     <script>
@@ -2259,589 +2461,306 @@
                 clearTimeout(dogTimer);
             }
         });
+
+        // Pet Database Functions
+        function openPetDatabase() {
+            document.getElementById('petDatabaseModal').style.display = 'block';
+            loadPetData();
+        }
+
+        function closePetDatabase() {
+            document.getElementById('petDatabaseModal').style.display = 'none';
+        }
+
+        function loadPetData() {
+            // This function will be implemented to load data from Google Sheets
+            // For now, we'll add some sample data
+            const sampleData = [
+                { name: 'Buddy', type: 'Dog', breed: 'Golden Retriever', age: '3', owner: 'John Doe' },
+                { name: 'Luna', type: 'Cat', breed: 'Siamese', age: '2', owner: 'Jane Smith' },
+                { name: 'Max', type: 'Dog', breed: 'German Shepherd', age: '4', owner: 'Mike Johnson' }
+            ];
+
+            const tableBody = document.getElementById('petTableBody');
+            tableBody.innerHTML = '';
+
+            sampleData.forEach(pet => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pet.name}</td>
+                    <td>${pet.type}</td>
+                    <td>${pet.breed}</td>
+                    <td>${pet.age}</td>
+                    <td>${pet.owner}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editPet('${pet.name}')">Edit</button>
+                        <button class="action-btn delete-btn" onclick="deletePet('${pet.name}')">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function searchPets() {
+            const searchTerm = document.getElementById('petSearch').value.toLowerCase();
+            const rows = document.getElementById('petTableBody').getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            }
+        }
+
+        function filterPets() {
+            const filterValue = document.getElementById('petFilter').value;
+            const rows = document.getElementById('petTableBody').getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const type = row.cells[1].textContent.toLowerCase();
+                row.style.display = filterValue === 'all' || type === filterValue ? '' : 'none';
+            }
+        }
+
+        function editPet(petName) {
+            // To be implemented: Edit pet functionality
+            alert(`Edit pet: ${petName}`);
+        }
+
+        function deletePet(petName) {
+            // To be implemented: Delete pet functionality
+            if (confirm(`Are you sure you want to delete ${petName}?`)) {
+                alert(`Deleted pet: ${petName}`);
+            }
+        }
+
+        // Pet Database Functions
+        function loadAllPets() {
+            const loadingDiv = document.getElementById('petDatabaseLoading');
+            const errorDiv = document.getElementById('petDatabaseError');
+            const petGrid = document.getElementById('petGrid');
+            
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            
+            // Call Google Apps Script to fetch pet data
+            google.script.run
+                .withSuccessHandler(function(pets) {
+                    loadingDiv.style.display = 'none';
+                    displayPets(pets);
+                    updateDatabaseStats(pets);
+                })
+                .withFailureHandler(function(error) {
+                    loadingDiv.style.display = 'none';
+                    errorDiv.style.display = 'block';
+                    document.getElementById('petDatabaseErrorText').textContent = error.message;
+                })
+                .getPetData();
+        }
+
+        function displayPets(pets) {
+            const petGrid = document.getElementById('petGrid');
+            
+            if (!pets || pets.length === 0) {
+                petGrid.innerHTML = `
+                    <div class="no-pets-message">
+                        <p>🐾 No pets in database yet. Pet profiles are automatically created when customers submit booking forms.</p>
+                        <p><strong>To get started:</strong> Share your booking form with customers and their pet information will appear here automatically!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            petGrid.innerHTML = pets.map(pet => `
+                <div class="pet-card">
+                    <div class="pet-header">
+                        <h3>${pet.name}</h3>
+                        <span class="pet-type">${pet.type}</span>
+                    </div>
+                    <div class="pet-details">
+                        <p><strong>Breed:</strong> ${pet.breed}</p>
+                        <p><strong>Age:</strong> ${pet.age}</p>
+                        <p><strong>Owner:</strong> ${pet.owner}</p>
+                        <p><strong>Service:</strong> ${pet.service}</p>
+                        <p><strong>Last Visit:</strong> ${pet.lastVisit}</p>
+                    </div>
+                    <div class="pet-actions">
+                        <button onclick="editPet('${pet.id}')" class="btn-edit">✏️ Edit</button>
+                        <button onclick="viewHistory('${pet.id}')" class="btn-history">📋 History</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDatabaseStats(pets) {
+            const totalPets = pets.length;
+            const premiumPets = pets.filter(pet => pet.isPremium).length;
+            const totalVisits = pets.reduce((sum, pet) => sum + (pet.visitCount || 0), 0);
+
+            document.getElementById('totalPets').textContent = totalPets;
+            document.getElementById('premiumPets').textContent = premiumPets;
+            document.getElementById('totalVisits').textContent = totalVisits;
+        }
+
+        function searchPets() {
+            const searchTerm = document.getElementById('petSearch').value.toLowerCase();
+            const petCards = document.querySelectorAll('.pet-card');
+
+            petCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function filterPets() {
+            const premiumFilter = document.getElementById('premiumFilter').value;
+            const serviceFilter = document.getElementById('serviceFilter').value;
+            const petCards = document.querySelectorAll('.pet-card');
+
+            petCards.forEach(card => {
+                const isPremium = card.querySelector('.pet-type').textContent.includes('Premium');
+                const service = card.querySelector('.pet-details').textContent;
+                
+                const matchesPremium = !premiumFilter || 
+                    (premiumFilter === 'premium' && isPremium) || 
+                    (premiumFilter === 'basic' && !isPremium);
+                
+                const matchesService = !serviceFilter || service.includes(serviceFilter);
+                
+                card.style.display = (matchesPremium && matchesService) ? '' : 'none';
+            });
+        }
+
+        function editPet(petId) {
+            // To be implemented: Edit pet functionality
+            alert('Edit pet functionality coming soon!');
+        }
+
+        function viewHistory(petId) {
+            // To be implemented: View pet history
+            alert('Pet history view coming soon!');
+        }
+
+        // Add styles for pet cards
+        const style = document.createElement('style');
+        style.textContent = `
+            .pet-card {
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                margin-bottom: 20px;
+            }
+
+            .pet-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .pet-header h3 {
+                margin: 0;
+                color: #4a90e2;
+            }
+
+            .pet-type {
+                background: #e3f2fd;
+                color: #4a90e2;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.8em;
+            }
+
+            .pet-details {
+                margin-bottom: 15px;
+            }
+
+            .pet-details p {
+                margin: 5px 0;
+                color: #666;
+            }
+
+            .pet-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .btn-edit, .btn-history {
+                padding: 8px 15px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-family: 'Poppins', sans-serif;
+                font-size: 0.9em;
+                transition: all 0.3s ease;
+            }
+
+            .btn-edit {
+                background: #4a90e2;
+                color: white;
+            }
+
+            .btn-history {
+                background: #6c757d;
+                color: white;
+            }
+
+            .btn-edit:hover, .btn-history:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load pets when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('dashboardSection').style.display !== 'none') {
+                loadAllPets();
+            }
+        });
+
+        function openPetManagementModal() {
+            document.getElementById('petManagementModal').style.display = 'block';
+            loadModalPetData();
+        }
+        function closePetManagementModal() {
+            document.getElementById('petManagementModal').style.display = 'none';
+        }
+        function loadModalPetData() {
+            // Placeholder: Replace with call to Google Apps Script
+            google.script.run.withSuccessHandler(function(pets) {
+                const tbody = document.getElementById('petModalTableBody');
+                tbody.innerHTML = '';
+                pets.forEach(pet => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${pet.name}</td>
+                        <td>${pet.type}</td>
+                        <td>${pet.breed}</td>
+                        <td>${pet.age}</td>
+                        <td>${pet.owner}</td>
+                        <td>${pet.service}</td>
+                        <td>
+                            <button onclick="editModalPet('${pet.id}')">Edit</button>
+                            <button onclick="deleteModalPet('${pet.id}')">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }).getPetData();
+        }
+        function searchModalPets() {
+            const searchTerm = document.getElementById('petModalSearch').value.toLowerCase();
+            const rows = document.getElementById('petModalTableBody').getElementsByTagName('tr');
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            }
+        }
+        function showAddPetForm() { alert('Add Pet form coming soon!'); }
+        function editModalPet(id) { alert('Edit Pet ' + id + ' coming soon!'); }
+        function deleteModalPet(id) { if (confirm('Delete this pet?')) alert('Deleted pet ' + id + ' (functionality coming soon)'); }
+        function exportPetDatabase() { alert('Export CSV coming soon!'); }
     </script>
-    
-    <style>
-        .dancing-dog {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
-            text-align: center;
-            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-            background-size: 400% 400%;
-            border-radius: 20px;
-            padding: 15px 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 3px solid white;
-            animation: rainbow-bg 2s ease-in-out infinite;
-        }
-        
-        .dancing-dog.dancing {
-            animation: dance-party 3s ease-in-out, rainbow-bg 2s ease-in-out infinite;
-        }
-        
-        .dog-emoji {
-            font-size: 3em;
-            margin-bottom: 5px;
-            animation: bounce 0.5s ease-in-out infinite alternate;
-        }
-        
-        .dance-text {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            font-size: 14px;
-            white-space: nowrap;
-        }
-        
-        @keyframes dance-party {
-            0% { 
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            10% { 
-                transform: scale(1.2) rotate(10deg);
-                opacity: 1;
-            }
-            20% { 
-                transform: scale(0.9) rotate(-10deg);
-            }
-            30% { 
-                transform: scale(1.1) rotate(15deg);
-            }
-            40% { 
-                transform: scale(0.95) rotate(-15deg);
-            }
-            50% { 
-                transform: scale(1.05) rotate(8deg);
-            }
-            60% { 
-                transform: scale(0.98) rotate(-8deg);
-            }
-            70% { 
-                transform: scale(1.02) rotate(5deg);
-            }
-            80% { 
-                transform: scale(0.99) rotate(-5deg);
-            }
-            90% { 
-                transform: scale(1.01) rotate(2deg);
-            }
-            95% { 
-                transform: scale(1) rotate(0deg);
-            }
-            100% { 
-                transform: scale(0) rotate(360deg);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes bounce {
-            0% { transform: translateY(0px) rotate(-5deg); }
-            100% { transform: translateY(-10px) rotate(5deg); }
-        }
-        
-        @keyframes rainbow-bg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-                 /* Mobile responsiveness */
-         @media (max-width: 768px) {
-             .dancing-dog {
-                 padding: 10px 15px;
-             }
-             .dog-emoji {
-                 font-size: 2.5em;
-             }
-             .dance-text {
-                 font-size: 12px;
-             }
-         }
-         
-         /* Tooltip Styles */
-         .info-icon {
-             color: #4a90e2;
-             font-size: 0.8em;
-             margin-left: 5px;
-             cursor: help;
-             opacity: 0.7;
-             transition: opacity 0.3s ease;
-         }
-         
-         .info-icon:hover {
-             opacity: 1;
-         }
-         
-         [data-tooltip] {
-             position: relative;
-             cursor: help;
-         }
-         
-         [data-tooltip]:hover::after {
-             content: attr(data-tooltip);
-             position: absolute;
-             bottom: 100%;
-             left: 50%;
-             transform: translateX(-50%);
-             background: rgba(0, 0, 0, 0.9);
-             color: white;
-             padding: 12px 16px;
-             border-radius: 8px;
-             font-size: 13px;
-             line-height: 1.4;
-             white-space: pre-line;
-             z-index: 10000;
-             max-width: 350px;
-             width: max-content;
-             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-             border: 1px solid rgba(255, 255, 255, 0.1);
-         }
-         
-         [data-tooltip]:hover::before {
-             content: '';
-             position: absolute;
-             bottom: 100%;
-             left: 50%;
-             transform: translateX(-50%) translateY(100%);
-             border: 6px solid transparent;
-             border-top-color: rgba(0, 0, 0, 0.9);
-             z-index: 10001;
-         }
-         
-         /* Mathematical Methodology Styles */
-         .methodology-section {
-             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-             border-radius: 15px;
-             padding: 25px;
-             margin-top: 30px;
-             border: 2px solid #dee2e6;
-         }
-         
-         .methodology-content {
-             display: flex;
-             flex-direction: column;
-             gap: 25px;
-         }
-         
-         .formula-section {
-             background: white;
-             border-radius: 12px;
-             padding: 20px;
-             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-             border-left: 4px solid #4a90e2;
-         }
-         
-         .formula-section h5 {
-             color: #4a90e2;
-             margin: 0 0 15px 0;
-             font-size: 1.1em;
-             font-weight: 600;
-         }
-         
-         .formula-box {
-             background: linear-gradient(135deg, #4a90e2, #357abd);
-             color: white;
-             padding: 15px 20px;
-             border-radius: 8px;
-             margin-bottom: 15px;
-             font-family: 'Courier New', monospace;
-             font-size: 14px;
-             line-height: 1.6;
-             box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
-         }
-         
-         .formula-explanation {
-             color: #495057;
-             font-size: 14px;
-         }
-         
-         .formula-explanation p {
-             margin: 0 0 10px 0;
-             font-weight: 600;
-         }
-         
-         .formula-explanation ul {
-             margin: 0;
-             padding-left: 20px;
-         }
-         
-         .formula-explanation li {
-             margin-bottom: 8px;
-             line-height: 1.5;
-         }
-         
-         .methodology-note {
-             background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-             border: 1px solid #ffeaa7;
-             border-radius: 8px;
-             padding: 15px;
-             margin-top: 20px;
-         }
-         
-         .methodology-note p {
-             margin: 0;
-             color: #856404;
-             font-size: 14px;
-             line-height: 1.5;
-         }
-         
-                   /* Mobile responsiveness for methodology */
-          @media (max-width: 768px) {
-              .methodology-section {
-                  padding: 15px;
-                  margin-top: 20px;
-              }
-              
-              .formula-section {
-                  padding: 15px;
-              }
-              
-              .formula-box {
-                  padding: 12px 15px;
-                  font-size: 12px;
-              }
-              
-              [data-tooltip]:hover::after {
-                  max-width: 280px;
-                  font-size: 12px;
-                  padding: 10px 12px;
-              }
-          }
-          
-          /* Pet Database Styles */
-          .pet-database-controls {
-              margin-bottom: 20px;
-              padding: 15px;
-              background: #f8f9fa;
-              border-radius: 8px;
-              border: 1px solid #dee2e6;
-          }
-          
-          .search-controls {
-              display: flex;
-              gap: 10px;
-              margin-bottom: 15px;
-              align-items: center;
-          }
-          
-          .search-input {
-              flex: 1;
-              padding: 10px 15px;
-              border: 2px solid #4a90e2;
-              border-radius: 8px;
-              font-family: 'Poppins', sans-serif;
-              font-size: 14px;
-          }
-          
-          .btn-search, .btn-refresh {
-              background: #4a90e2;
-              color: white;
-              padding: 10px 15px;
-              border: none;
-              border-radius: 8px;
-              font-family: 'Poppins', sans-serif;
-              font-weight: 600;
-              cursor: pointer;
-              transition: all 0.3s ease;
-              white-space: nowrap;
-          }
-          
-          .btn-search:hover, .btn-refresh:hover {
-              background: #357abd;
-              transform: translateY(-2px);
-          }
-          
-          .filter-controls {
-              display: flex;
-              gap: 15px;
-              align-items: center;
-          }
-          
-          .filter-select {
-              padding: 8px 12px;
-              border: 2px solid #4a90e2;
-              border-radius: 6px;
-              font-family: 'Poppins', sans-serif;
-              font-size: 14px;
-              background: white;
-              color: #333;
-              min-width: 150px;
-          }
-          
-          .database-stats {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-              gap: 15px;
-              margin-bottom: 25px;
-          }
-          
-          .stat-item {
-              background: linear-gradient(135deg, #4a90e2, #357abd);
-              color: white;
-              padding: 15px;
-              border-radius: 10px;
-              text-align: center;
-              box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-          }
-          
-          .stat-number {
-              display: block;
-              font-size: 2em;
-              font-weight: 700;
-              margin-bottom: 5px;
-          }
-          
-          .stat-label {
-              font-size: 0.9em;
-              opacity: 0.9;
-          }
-          
-          .pet-grid {
-              display: grid;
-              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-              gap: 20px;
-          }
-          
-          .pet-card {
-              background: white;
-              border: 2px solid #e9ecef;
-              border-radius: 12px;
-              padding: 20px;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-              transition: all 0.3s ease;
-              cursor: pointer;
-          }
-          
-          .pet-card:hover {
-              border-color: #4a90e2;
-              transform: translateY(-2px);
-              box-shadow: 0 6px 20px rgba(74, 144, 226, 0.2);
-          }
-          
-          .pet-card.premium {
-              border-color: #ffd700;
-              background: linear-gradient(135deg, #fff, #fffbf0);
-          }
-          
-          .pet-card.premium::before {
-              content: '⭐ Premium';
-              position: absolute;
-              top: 10px;
-              right: 10px;
-              background: #ffd700;
-              color: #333;
-              padding: 4px 8px;
-              border-radius: 12px;
-              font-size: 11px;
-              font-weight: 600;
-          }
-          
-          .pet-card {
-              position: relative;
-          }
-          
-          .pet-header {
-              display: flex;
-              align-items: center;
-              margin-bottom: 15px;
-          }
-          
-          .pet-avatar {
-              width: 50px;
-              height: 50px;
-              background: linear-gradient(135deg, #4a90e2, #357abd);
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 24px;
-              margin-right: 15px;
-          }
-          
-          .pet-info h4 {
-              margin: 0 0 5px 0;
-              color: #333;
-              font-size: 1.2em;
-          }
-          
-          .pet-info .breed {
-              color: #666;
-              font-size: 0.9em;
-              margin: 0;
-          }
-          
-          .pet-details {
-              margin-bottom: 15px;
-          }
-          
-          .pet-detail-item {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 8px;
-              font-size: 14px;
-          }
-          
-          .pet-detail-label {
-              font-weight: 600;
-              color: #495057;
-          }
-          
-          .pet-detail-value {
-              color: #6c757d;
-              text-align: right;
-              max-width: 60%;
-              word-break: break-word;
-          }
-          
-          .pet-stats {
-              display: flex;
-              justify-content: space-between;
-              padding-top: 15px;
-              border-top: 1px solid #e9ecef;
-              font-size: 13px;
-          }
-          
-          .pet-stat {
-              text-align: center;
-          }
-          
-          .pet-stat-number {
-              display: block;
-              font-weight: 700;
-              color: #4a90e2;
-              font-size: 1.2em;
-          }
-          
-          .pet-stat-label {
-              color: #6c757d;
-              font-size: 0.9em;
-          }
-          
-          .no-pets-message {
-              grid-column: 1 / -1;
-              text-align: center;
-              padding: 40px 20px;
-              background: #f8f9fa;
-              border-radius: 12px;
-              border: 2px dashed #dee2e6;
-              color: #6c757d;
-          }
-          
-          .no-pets-message p {
-              margin: 10px 0;
-              line-height: 1.6;
-          }
-          
-          /* Mobile responsiveness for pet database */
-          @media (max-width: 768px) {
-              .search-controls {
-                  flex-direction: column;
-                  align-items: stretch;
-              }
-              
-              .filter-controls {
-                  flex-direction: column;
-                  align-items: stretch;
-              }
-              
-              .filter-select {
-                  min-width: auto;
-              }
-              
-              .pet-grid {
-                  grid-template-columns: 1fr;
-              }
-              
-              .database-stats {
-                  grid-template-columns: repeat(3, 1fr);
-              }
-              
-              .stat-number {
-                  font-size: 1.5em;
-              }
-          }
-          
-          /* Pet Details Modal Styles */
-          .pet-details-modal {
-              max-width: 1000px;
-              max-height: 90vh;
-              overflow-y: auto;
-          }
-          
-          .pet-details-grid {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-              gap: 20px;
-          }
-          
-          .pet-details-section {
-              background: #f8f9fa;
-              padding: 20px;
-              border-radius: 10px;
-              border: 1px solid #dee2e6;
-          }
-          
-          .pet-details-section h3 {
-              margin: 0 0 15px 0;
-              color: #4a90e2;
-              font-size: 1.1em;
-              border-bottom: 2px solid #4a90e2;
-              padding-bottom: 8px;
-          }
-          
-          .detail-item {
-              margin-bottom: 12px;
-              padding: 8px 0;
-              border-bottom: 1px solid #e9ecef;
-              font-size: 14px;
-              line-height: 1.4;
-          }
-          
-          .detail-item:last-child {
-              border-bottom: none;
-              margin-bottom: 0;
-          }
-          
-          .detail-item strong {
-              color: #495057;
-              display: inline-block;
-              min-width: 120px;
-              margin-right: 10px;
-          }
-          
-          .notes-section {
-              background: white;
-              padding: 15px;
-              border-radius: 8px;
-              border: 1px solid #dee2e6;
-              font-style: italic;
-              color: #6c757d;
-              min-height: 60px;
-          }
-          
-          /* Mobile responsiveness for pet details modal */
-          @media (max-width: 768px) {
-              .pet-details-modal {
-                  margin: 10px;
-                  max-height: 95vh;
-              }
-              
-              .pet-details-grid {
-                  grid-template-columns: 1fr;
-              }
-              
-              .pet-details-section {
-                  padding: 15px;
-              }
-              
-              .detail-item strong {
-                  min-width: 100px;
-                  font-size: 13px;
-              }
-          }
-    </style>
 </body>
 </html> 
