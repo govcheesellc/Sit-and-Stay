@@ -2215,4 +2215,570 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-}); 
+});
+
+/**
+ * Anti-Scraping Protection
+ */
+const ANTI_SCRAPING = {
+    // Rate limiting
+    requestCount: 0,
+    lastRequestTime: Date.now(),
+    maxRequestsPerMinute: 60,
+    
+    // Bot detection
+    botPatterns: [
+        /bot/i,
+        /crawler/i,
+        /spider/i,
+        /scraper/i,
+        /curl/i,
+        /wget/i,
+        /python-requests/i,
+        /node-fetch/i
+    ],
+    
+    // Initialize protection
+    init() {
+        // Add event listeners for protection
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupProtection();
+            this.monitorUserBehavior();
+        });
+        
+        // Intercept fetch requests
+        this.interceptFetch();
+        
+        // Add CSS protection
+        this.addCSSProtection();
+    },
+    
+    // Setup basic protection
+    setupProtection() {
+        // Disable right-click
+        document.addEventListener('contextmenu', (e) => {
+            if (!this.isAdminUser()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Disable text selection
+        document.addEventListener('selectstart', (e) => {
+            if (!this.isAdminUser()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (!this.isAdminUser() && (
+                (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's')) ||
+                (e.key === 'F12')
+            )) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    },
+    
+    // Monitor user behavior
+    monitorUserBehavior() {
+        let mouseMovements = 0;
+        let lastMousePosition = { x: 0, y: 0 };
+        
+        document.addEventListener('mousemove', (e) => {
+            const currentTime = Date.now();
+            
+            // Check for bot-like behavior (too precise movements)
+            if (currentTime - this.lastRequestTime < 100) {
+                const distance = Math.sqrt(
+                    Math.pow(e.clientX - lastMousePosition.x, 2) +
+                    Math.pow(e.clientY - lastMousePosition.y, 2)
+                );
+                
+                if (distance < 5) { // Suspiciously precise movements
+                    this.handleSuspiciousActivity('Suspicious mouse movement pattern detected');
+                }
+            }
+            
+            lastMousePosition = { x: e.clientX, y: e.clientY };
+            mouseMovements++;
+            
+            // Reset counter every minute
+            if (currentTime - this.lastRequestTime > 60000) {
+                mouseMovements = 0;
+                this.lastRequestTime = currentTime;
+            }
+        });
+    },
+    
+    // Intercept fetch requests
+    interceptFetch() {
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            this.requestCount++;
+            const currentTime = Date.now();
+            
+            // Rate limiting
+            if (currentTime - this.lastRequestTime < 60000) {
+                if (this.requestCount > this.maxRequestsPerMinute) {
+                    this.handleSuspiciousActivity('Rate limit exceeded');
+                    return new Response('Rate limit exceeded', { status: 429 });
+                }
+            } else {
+                this.requestCount = 0;
+                this.lastRequestTime = currentTime;
+            }
+            
+            // Check for bot patterns in headers
+            const headers = args[1]?.headers || {};
+            const userAgent = headers['User-Agent'] || navigator.userAgent;
+            
+            if (this.botPatterns.some(pattern => pattern.test(userAgent))) {
+                this.handleSuspiciousActivity('Bot detected');
+                return new Response('Access denied', { status: 403 });
+            }
+            
+            return originalFetch(...args);
+        };
+    },
+    
+    // Add CSS protection
+    addCSSProtection() {
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Disable text selection */
+            body {
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            
+            /* Allow selection for admin users */
+            .admin-user * {
+                -webkit-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
+                user-select: text;
+            }
+            
+            /* Hide content from screen readers when not admin */
+            .protected-content {
+                position: relative;
+            }
+            
+            .protected-content::before {
+                content: attr(data-content);
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: white;
+                z-index: 1;
+            }
+        `;
+        document.head.appendChild(style);
+    },
+    
+    // Handle suspicious activity
+    handleSuspiciousActivity(reason) {
+        console.warn(`Suspicious activity detected: ${reason}`);
+        
+        // Log the activity
+        if (window.gtag) {
+            gtag('event', 'suspicious_activity', {
+                'event_category': 'security',
+                'event_label': reason
+            });
+        }
+        
+        // Notify admin if authenticated
+        if (this.isAdminUser()) {
+            // Send notification to admin
+            this.notifyAdmin(reason);
+        }
+    },
+    
+    // Check if current user is admin
+    isAdminUser() {
+        return isAuthenticated && currentUser && CONFIG.AUTHORIZED_ADMINS.includes(currentUser.email);
+    },
+    
+    // Notify admin of suspicious activity
+    notifyAdmin(reason) {
+        // Implementation depends on your notification system
+        console.log(`Admin notification: ${reason}`);
+    }
+};
+
+// Initialize anti-scraping protection
+ANTI_SCRAPING.init();
+
+/**
+ * Admin Notes Management
+ */
+const ADMIN_NOTES = {
+    // Google Sheet ID for storing notes
+    SHEET_ID: 'YOUR_NOTES_SHEET_ID', // Replace with actual Sheet ID
+    SHEET_NAME: 'Admin Notes',
+    
+    // Initialize notes system
+    init() {
+        // Load existing notes when dashboard loads
+        if (isAuthenticated) {
+            this.loadNotes();
+        }
+        
+        // Set up auto-refresh every 5 minutes
+        setInterval(() => {
+            if (isAuthenticated) {
+                this.loadNotes();
+            }
+        }, 300000); // 5 minutes
+    },
+    
+    // Load notes from Google Sheet
+    async loadNotes() {
+        try {
+            const loadingDiv = document.getElementById('notesLoading');
+            const notesLog = document.getElementById('adminNotesLog');
+            
+            if (loadingDiv) loadingDiv.style.display = 'block';
+            
+            // Fetch notes from Google Sheet
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.SHEET_NAME}?key=${CONFIG.PET_DATABASE.API_KEY}`);
+            const data = await response.json();
+            
+            if (data.values) {
+                // Clear loading message
+                if (loadingDiv) loadingDiv.style.display = 'none';
+                
+                // Sort notes by timestamp (newest first)
+                const notes = data.values
+                    .slice(1) // Skip header row
+                    .map(row => ({
+                        timestamp: new Date(row[0]),
+                        author: row[1],
+                        message: row[2]
+                    }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Display notes
+                this.displayNotes(notes);
+            }
+        } catch (error) {
+            console.error('Error loading admin notes:', error);
+            this.showError('Failed to load notes. Please try again.');
+        }
+    },
+    
+    // Display notes in the log
+    displayNotes(notes) {
+        const notesLog = document.getElementById('adminNotesLog');
+        if (!notesLog) return;
+        
+        notesLog.innerHTML = notes.map(note => `
+            <div class="message">
+                <div class="message-header">
+                    <span class="message-author">${note.author}</span>
+                    <span class="message-time">${this.formatTimestamp(note.timestamp)}</span>
+                </div>
+                <div class="message-content">${this.formatMessage(note.message)}</div>
+            </div>
+        `).join('');
+    },
+    
+    // Format timestamp
+    formatTimestamp(timestamp) {
+        return new Date(timestamp).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
+    },
+    
+    // Format message (handle line breaks and basic formatting)
+    formatMessage(message) {
+        return message
+            .replace(/\n/g, '<br>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+    },
+    
+    // Send a new note
+    async sendNote() {
+        try {
+            const noteInput = document.getElementById('adminNoteInput');
+            const message = noteInput.value.trim();
+            
+            if (!message) {
+                this.showError('Please enter a message.');
+                return;
+            }
+            
+            if (!currentUser) {
+                this.showError('You must be logged in to send notes.');
+                return;
+            }
+            
+            // Prepare note data
+            const noteData = {
+                timestamp: new Date().toISOString(),
+                author: currentUser.name,
+                message: message
+            };
+            
+            // Append to Google Sheet
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.SHEET_NAME}!A:C:append?valueInputOption=USER_ENTERED&key=${CONFIG.PET_DATABASE.API_KEY}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    values: [[noteData.timestamp, noteData.author, noteData.message]]
+                })
+            });
+            
+            if (response.ok) {
+                // Clear input
+                noteInput.value = '';
+                
+                // Reload notes
+                this.loadNotes();
+                
+                // Show success message
+                this.showSuccess('Note sent successfully!');
+            } else {
+                throw new Error('Failed to save note');
+            }
+        } catch (error) {
+            console.error('Error sending note:', error);
+            this.showError('Failed to send note. Please try again.');
+        }
+    },
+    
+    // Show error message
+    showError(message) {
+        const notesLog = document.getElementById('adminNotesLog');
+        if (notesLog) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            notesLog.insertBefore(errorDiv, notesLog.firstChild);
+            
+            // Remove error message after 5 seconds
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+    },
+    
+    // Show success message
+    showSuccess(message) {
+        const notesLog = document.getElementById('adminNotesLog');
+        if (notesLog) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            notesLog.insertBefore(successDiv, notesLog.firstChild);
+            
+            // Remove success message after 5 seconds
+            setTimeout(() => successDiv.remove(), 5000);
+        }
+    }
+};
+
+// Initialize admin notes when dashboard loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (isAuthenticated) {
+        ADMIN_NOTES.init();
+    }
+});
+
+// Make sendNote function available globally
+window.sendAdminNote = () => ADMIN_NOTES.sendNote();
+
+// Service Status Monitor
+const SERVICE_MONITOR = {
+    services: {
+        calendar: {
+            id: 'calendarStatus',
+            name: 'Google Calendar',
+            check: async () => {
+                try {
+                    const response = await gapi.client.calendar.calendarList.list();
+                    return response.status === 200;
+                } catch (error) {
+                    console.error('Calendar check failed:', error);
+                    return false;
+                }
+            }
+        },
+        sheets: {
+            id: 'sheetsStatus',
+            name: 'Google Sheets',
+            check: async () => {
+                try {
+                    const response = await gapi.client.sheets.spreadsheets.get({
+                        spreadsheetId: CONFIG.SHEET_ID
+                    });
+                    return response.status === 200;
+                } catch (error) {
+                    console.error('Sheets check failed:', error);
+                    return false;
+                }
+            }
+        },
+        analytics: {
+            id: 'analyticsStatus',
+            name: 'Google Analytics',
+            check: async () => {
+                try {
+                    const response = await gapi.client.analytics.data.ga.get({
+                        'ids': 'ga:' + CONFIG.ANALYTICS_ID,
+                        'start-date': 'today',
+                        'end-date': 'today',
+                        'metrics': 'ga:users'
+                    });
+                    return response.status === 200;
+                } catch (error) {
+                    console.error('Analytics check failed:', error);
+                    return false;
+                }
+            }
+        },
+        auth: {
+            id: 'authStatus',
+            name: 'Google Auth',
+            check: async () => {
+                try {
+                    const response = await gapi.client.oauth2.userinfo.get();
+                    return response.status === 200;
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                    return false;
+                }
+            }
+        },
+        stripe: {
+            id: 'stripeStatus',
+            name: 'Stripe Payments',
+            check: async () => {
+                try {
+                    const response = await fetch('https://api.stripe.com/v1/balance', {
+                        headers: {
+                            'Authorization': `Bearer ${CONFIG.STRIPE_SECRET_KEY}`
+                        }
+                    });
+                    return response.ok;
+                } catch (error) {
+                    console.error('Stripe check failed:', error);
+                    return false;
+                }
+            }
+        },
+        netlify: {
+            id: 'netlifyStatus',
+            name: 'Netlify Hosting',
+            check: async () => {
+                try {
+                    const response = await fetch(window.location.origin);
+                    return response.ok;
+                } catch (error) {
+                    console.error('Netlify check failed:', error);
+                    return false;
+                }
+            }
+        }
+    },
+    
+    history: [],
+    
+    async init() {
+        // Start monitoring
+        this.startMonitoring();
+        
+        // Set up periodic checks
+        setInterval(() => this.startMonitoring(), 5 * 60 * 1000); // Check every 5 minutes
+    },
+    
+    async startMonitoring() {
+        for (const [key, service] of Object.entries(this.services)) {
+            await this.checkService(key, service);
+        }
+    },
+    
+    async checkService(key, service) {
+        const element = document.getElementById(service.id);
+        if (!element) return;
+        
+        const statusElement = element.querySelector('.service-status');
+        statusElement.textContent = 'Checking...';
+        statusElement.className = 'service-status status-checking';
+        
+        try {
+            const isOperational = await service.check();
+            this.updateStatus(key, isOperational);
+        } catch (error) {
+            console.error(`Error checking ${service.name}:`, error);
+            this.updateStatus(key, false);
+        }
+    },
+    
+    updateStatus(key, isOperational) {
+        const service = this.services[key];
+        const element = document.getElementById(service.id);
+        if (!element) return;
+        
+        const statusElement = element.querySelector('.service-status');
+        const timestamp = new Date().toISOString();
+        
+        if (isOperational) {
+            statusElement.textContent = 'Operational';
+            statusElement.className = 'service-status status-operational';
+        } else {
+            statusElement.textContent = 'Service Disruption';
+            statusElement.className = 'service-status status-outage';
+        }
+        
+        // Add to history
+        this.addToHistory(service.name, isOperational, timestamp);
+    },
+    
+    addToHistory(serviceName, isOperational, timestamp) {
+        const history = {
+            service: serviceName,
+            status: isOperational ? 'Operational' : 'Service Disruption',
+            timestamp: timestamp
+        };
+        
+        this.history.unshift(history);
+        this.history = this.history.slice(0, 50); // Keep last 50 entries
+        
+        this.updateHistoryDisplay();
+    },
+    
+    updateHistoryDisplay() {
+        const historyList = document.querySelector('.history-list');
+        if (!historyList) return;
+        
+        historyList.innerHTML = this.history.map(entry => `
+            <div class="history-item">
+                <span>${entry.service}: ${entry.status}</span>
+                <span class="history-time">${new Date(entry.timestamp).toLocaleString()}</span>
+            </div>
+        `).join('');
+    }
+};
+
+// Initialize service monitor when dashboard loads
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.pathname.includes('admin.html')) {
+        SERVICE_MONITOR.init();
+    }
+});

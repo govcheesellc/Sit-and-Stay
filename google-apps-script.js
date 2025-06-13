@@ -27,6 +27,200 @@ const PREMIUM_DISCOUNT_PERCENT = 10;
 const ELITE_DISCOUNT_PERCENT = 15;
 
 /**
+ * Anti-Scraping Protection
+ */
+const SERVER_PROTECTION = {
+  // Rate limiting storage
+  rateLimits: {},
+  
+  // Initialize protection
+  init() {
+    // Add protection to all web app endpoints
+    this.protectEndpoints();
+  },
+  
+  // Protect all endpoints
+  protectEndpoints() {
+    // Protect form submission
+    const originalFormSubmit = handleFormSubmit;
+    handleFormSubmit = (e) => {
+      if (!this.validateRequest(e)) {
+        return ContentService.createTextOutput(JSON.stringify({
+          error: 'Access denied',
+          reason: 'Suspicious activity detected'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+      return originalFormSubmit(e);
+    };
+  },
+  
+  // Validate incoming requests
+  validateRequest(e) {
+    const ip = e.parameter.ip || '';
+    const userAgent = e.parameter.userAgent || '';
+    const timestamp = new Date().getTime();
+    
+    // Check rate limits
+    if (!this.checkRateLimit(ip, timestamp)) {
+      return false;
+    }
+    
+    // Check for bot patterns
+    if (this.isBot(userAgent)) {
+      return false;
+    }
+    
+    // Check for suspicious patterns
+    if (this.isSuspicious(e)) {
+      return false;
+    }
+    
+    return true;
+  },
+  
+  // Check rate limits
+  checkRateLimit(ip, timestamp) {
+    if (!this.rateLimits[ip]) {
+      this.rateLimits[ip] = {
+        count: 0,
+        firstRequest: timestamp
+      };
+    }
+    
+    const limit = this.rateLimits[ip];
+    
+    // Reset if more than 1 minute has passed
+    if (timestamp - limit.firstRequest > 60000) {
+      limit.count = 0;
+      limit.firstRequest = timestamp;
+    }
+    
+    // Increment counter
+    limit.count++;
+    
+    // Check if limit exceeded (60 requests per minute)
+    if (limit.count > 60) {
+      return false;
+    }
+    
+    return true;
+  },
+  
+  // Check for bot patterns
+  isBot(userAgent) {
+    const botPatterns = [
+      /bot/i,
+      /crawler/i,
+      /spider/i,
+      /scraper/i,
+      /curl/i,
+      /wget/i,
+      /python-requests/i,
+      /node-fetch/i
+    ];
+    
+    return botPatterns.some(pattern => pattern.test(userAgent));
+  },
+  
+  // Check for suspicious patterns
+  isSuspicious(e) {
+    // Check for missing required parameters
+    if (!e.parameter.email || !e.parameter.name) {
+      return true;
+    }
+    
+    // Check for suspicious parameter values
+    if (this.hasSuspiciousValues(e.parameter)) {
+      return true;
+    }
+    
+    // Check for rapid form submissions
+    if (this.isRapidSubmission(e)) {
+      return true;
+    }
+    
+    return false;
+  },
+  
+  // Check for suspicious parameter values
+  hasSuspiciousValues(params) {
+    // Check for SQL injection patterns
+    const sqlPatterns = [
+      /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER)\b)/i,
+      /(\b(OR|AND)\b\s+\d+\s*=\s*\d+)/i,
+      /(--|\b(WAITFOR|DELAY)\b)/i
+    ];
+    
+    // Check for XSS patterns
+    const xssPatterns = [
+      /<script.*?>.*?<\/script>/i,
+      /javascript:/i,
+      /on\w+\s*=/i
+    ];
+    
+    // Check all parameter values
+    for (const key in params) {
+      const value = params[key];
+      
+      // Check for SQL injection
+      if (sqlPatterns.some(pattern => pattern.test(value))) {
+        return true;
+      }
+      
+      // Check for XSS
+      if (xssPatterns.some(pattern => pattern.test(value))) {
+        return true;
+      }
+    }
+    
+    return false;
+  },
+  
+  // Check for rapid form submissions
+  isRapidSubmission(e) {
+    const email = e.parameter.email;
+    const timestamp = new Date().getTime();
+    
+    // Get submission history for this email
+    const history = this.getSubmissionHistory(email);
+    
+    // Check if too many submissions in short time
+    if (history.length > 0) {
+      const lastSubmission = history[history.length - 1];
+      if (timestamp - lastSubmission < 5000) { // 5 seconds
+        return true;
+      }
+    }
+    
+    // Add current submission to history
+    history.push(timestamp);
+    
+    // Keep only last 10 submissions
+    if (history.length > 10) {
+      history.shift();
+    }
+    
+    return false;
+  },
+  
+  // Get submission history for an email
+  getSubmissionHistory(email) {
+    const cache = CacheService.getScriptCache();
+    const key = `submission_history_${email}`;
+    const history = cache.get(key);
+    
+    if (history) {
+      return JSON.parse(history);
+    }
+    
+    return [];
+  }
+};
+
+// Initialize server protection
+SERVER_PROTECTION.init();
+
+/**
  * Main function triggered when form is submitted
  */
 function onFormSubmit(e) {
