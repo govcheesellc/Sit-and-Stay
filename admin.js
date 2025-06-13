@@ -2556,11 +2556,23 @@ const ADMIN_NOTES = {
                 // Show success message
                 this.showSuccess('Note sent successfully!');
             } else {
-                throw new Error('Failed to save note');
+                // Try to get the error message from the response
+                let errorMsg = 'Failed to save note';
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.error && errorData.error.message) {
+                        errorMsg += `: ${errorData.error.message}`;
+                    } else {
+                        errorMsg += `: ${response.status} ${response.statusText}`;
+                    }
+                } catch (e) {
+                    errorMsg += `: ${response.status} ${response.statusText}`;
+                }
+                throw new Error(errorMsg);
             }
         } catch (error) {
             console.error('Error sending note:', error);
-            this.showError('Failed to send note. Please try again.');
+            this.showError('Failed to send note. ' + (error.message || 'Please try again.'));
         }
     },
     
